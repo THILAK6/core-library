@@ -175,3 +175,5 @@ Updates the numeric value of the menu item.
 
 2. `void updateMode(int8_t modeToUpdate)`
 Updates the current mode of the menu item.
+
+**Note:** The `MenuItem` class includes other public methods, but in most cases, you won't need to use them directly, as the `MenuManager` handles these functionalities for you.
