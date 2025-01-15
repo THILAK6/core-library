@@ -124,10 +124,10 @@ void TM1638::setDisplayPart(float value, int startIndex, int length, int decimal
     length--;
   }
 
-  Serial.print("valueToDisplay: ");
-  Serial.println(valueToDisplay);
-
-  Serial.println();
+  if(valueToDisplay < pow(10, decimalPos))
+  {
+    leadingZeros = true;
+  }
 
   setDisplayNumber(valueToDisplay, startIndex, decimalPos, length, leadingZeros, numberFont, blinkDigitPos, blinkState);
 }
@@ -156,7 +156,7 @@ void TM1638::setDisplayNumber(int32_t value, int8_t startingPos, int8_t decimalP
     {
       if (leadingZeros || i == 0)
       {
-        setDisplayDigit(0, pos, 0, numberFont);
+        setDisplayDigit(0, pos, isDot, numberFont);
       }
       else
       {
