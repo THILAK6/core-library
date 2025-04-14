@@ -73,4 +73,6 @@ public:
     String currentModeValue();
     String getMainName();
     MenuItemType getDatatype();
+    void setDisplayType(uint8_t displayType);
+    void setShortName(String shortName);
 };

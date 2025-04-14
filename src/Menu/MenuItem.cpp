@@ -234,3 +234,13 @@ MenuItemType MenuItem::getDatatype()
 {
     return type;
 }
+
+void MenuItem::setDisplayType(uint8_t displayType)
+{
+    this->displayType = displayType;
+}
+
+void MenuItem::setShortName(String shortName)
+{
+    this->shortName = shortName;
+}
