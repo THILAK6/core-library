@@ -119,21 +119,21 @@ void TM16XX::setDisplayToString(const char *string, const bool shouldBlink, cons
       lastUpdateTime = currentTime;
       displayOn = !displayOn;
     }
-  }
-  else
-  {
-    setDisplayToString(string, dots, pos, font);
-  }
-  if(displayOn)
-  {
-    setDisplayToString(string, dots, pos, font);
-  }
-  else
-  {
-    for (int i = 0; i < displays - pos; i++)
+    if (displayOn)
     {
-      clearDisplayDigit(i, 0);
+      setDisplayToString(string, dots, pos, font);
     }
+    else
+    {
+      for (int i = 0; i < displays - pos; i++)
+      {
+        clearDisplayDigit(i, 0);
+      }
+    }
+  }
+  else
+  {
+    setDisplayToString(string, dots, pos, font);
   }
 }
 
@@ -153,22 +153,21 @@ void TM16XX::setDisplayToString(const String string, const bool shouldBlink, con
       lastUpdateTime = currentTime;
       displayOn = !displayOn;
     }
-  }
-  else
-  {
-    setDisplayToString(string, dots, pos, font);
-  }
-
-  if(displayOn)
-  {
-    setDisplayToString(string, dots, pos, font);
-  }
-  else
-  {
-    for (int i = 0; i < displays - pos; i++)
+    if (displayOn)
     {
-      clearDisplayDigit(i, 0);
+      setDisplayToString(string, dots, pos, font);
     }
+    else
+    {
+      for (int i = 0; i < displays - pos; i++)
+      {
+        clearDisplayDigit(i, 0);
+      }
+    }
+  }
+  else
+  {
+    setDisplayToString(string, dots, pos, font);
   }
 }
 

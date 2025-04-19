@@ -124,7 +124,7 @@ void TM1638::setDisplayPart(float value, int startIndex, int length, int decimal
     length--;
   }
 
-  if(valueToDisplay < pow(10, decimalPos))
+  if (valueToDisplay < pow(10, decimalPos))
   {
     leadingZeros = true;
   }
@@ -133,7 +133,7 @@ void TM1638::setDisplayPart(float value, int startIndex, int length, int decimal
 }
 
 void TM1638::setDisplayNumber(int32_t value, int8_t startingPos, int8_t decimalPos, int8_t length, bool leadingZeros, const byte numberFont[], int8_t blinkDigitPos, bool blinkState)
-{
+{ 
   for (int i = 0; i < length; i++)
   {
     int pos = startingPos - i;
@@ -155,7 +155,7 @@ void TM1638::setDisplayNumber(int32_t value, int8_t startingPos, int8_t decimalP
     else
     {
       if (leadingZeros || i == 0)
-      {
+      { 
         setDisplayDigit(0, pos, isDot, numberFont);
       }
       else

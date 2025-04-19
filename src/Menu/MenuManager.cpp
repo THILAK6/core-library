@@ -1,18 +1,23 @@
 #include "Menu/MenuManager.h"
-#define DEFAULT_PASSWORD 66666
+#define DEFAULT_PASSWORD 98765
 
 MenuItem *accessDecider;
 MenuItem *password;
+MenuItem *customPassword;
 
-MenuManager::MenuManager(std::vector<MenuItem *> &viewMenuItems, std::vector<MenuItem *> &editMenuItems, TM1638 *module, int menuButton, int enterButton, int selectButton, int upButton, int resetButton, MenuItem &customPassword, std::function<void()> save, std::function<void(MenuItem*)> reset)
-    : viewMenuItems(viewMenuItems), module(module), menuButton(menuButton), enterButton(enterButton), selectButton(selectButton), upButton(upButton), resetButton(resetButton), customPassword(customPassword), save(save), reset(reset)
+MenuManager::MenuManager(std::vector<MenuItem *> &viewMenuItems, std::vector<MenuItem *> &editMenuItems, TM1638 *module, int menuButton, int enterButton, int selectButton, int upButton, int resetButton, std::function<void()> save, std::function<void(MenuItem*)> reset, Preferences &preferences)
+    : viewMenuItems(viewMenuItems), module(module), menuButton(menuButton), enterButton(enterButton), selectButton(selectButton), upButton(upButton), resetButton(resetButton), save(save), reset(reset), preferences(preferences)
 {
+    int currentAccessMode = preferences.getInt("accessMode", 0);
+    float customPasswordValue = preferences.getFloat("CustomPass", 0);
+
     std::vector<String> accessModes = {"FuLL ", "pASS "};
     std::vector<String> accessModesName = {"Full Access", "Password Access"};
-    accessDecider = new MenuItem("Access", "ACCES", "ACC", accessModes, accessModesName, 0, module, true, 0);
-    password = new MenuItem("Default Password", "PASSW", "PAS", 0, module, true, 0, 0);
+    accessDecider = new MenuItem("Access", "ACCES", "ACC", accessModes, accessModesName, currentAccessMode, module, true, VALUE_AND_SHORT_NAME);
+    password = new MenuItem("Default Password", "PASSW", "PAS", 0, module, 0, true, 0, VALUE_AND_SHORT_NAME);
+    customPassword = new MenuItem("Custom Password", "cpass", "cps", customPasswordValue, module, 0, true, 0, VALUE_AND_SHORT_NAME);
     editMenuItems.insert(editMenuItems.begin(), password);
-    editMenuItems.insert(editMenuItems.end(), {&customPassword, accessDecider});
+    editMenuItems.insert(editMenuItems.end(), {customPassword, accessDecider});
     this->editMenuItems = editMenuItems;
 }
 
@@ -49,14 +54,7 @@ void MenuManager::editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPr
     }
     if (isMenuButtonPressed && !isEditing)
     {
-        if (accessDecider->currentMode() == 0)
-        {
-            nextEditMenuItem();
-        }
-        if (accessDecider->currentMode() == 1 && ((password->value() == DEFAULT_PASSWORD) || (password->value() == customPassword.value())))
-        {
-            nextEditMenuItem();
-        }
+        nextEditMenuItem(false);
     }
     if (isEnterButtonPressed)
     {
@@ -64,7 +62,9 @@ void MenuManager::editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPr
         {
             editMenuItems[currentEditMenuItem]->stopEdit();
             isEditing = false;
-            nextEditMenuItem();
+            nextEditMenuItem(editMenuItems[currentEditMenuItem]->getMainName() == "Custom Password");
+            preferences.putFloat("CustomPass", customPassword->value());
+            preferences.putInt("accessMode", accessDecider->currentMode());
             save();
         }
         else
@@ -94,13 +94,13 @@ void MenuManager::viewMenuControl(bool isUpButtonPressed, bool isResetButtonPres
     viewMenuItems[currentViewMenuItem]->display();
 }
 
-void MenuManager::nextEditMenuItem()
+void MenuManager:: nextEditMenuItem(bool isCustomPasswordChange)
 {
     if (accessDecider->currentMode() == 0)
     {
         currentEditMenuItem = (currentEditMenuItem + 1) % editMenuItems.size();
     }
-    if (accessDecider->currentMode() == 1 && ((password->value() == DEFAULT_PASSWORD) || (password->value() == customPassword.value())))
+    if (isCustomPasswordChange || (accessDecider->currentMode() == 1 && ((password->value() == DEFAULT_PASSWORD) || (password->value() == customPassword->value()))))
     {
         currentEditMenuItem = (currentEditMenuItem + 1) % editMenuItems.size();
     }

@@ -3,6 +3,12 @@
 #include <TM1638/InvertedTM1638.h>
 #include <vector>
 
+enum DisplayType {
+    VALUE_AND_SHORT_NAME,
+    VALUE,
+    NAME,
+};
+
 enum class MenuItemType
 {
     ValueType,
