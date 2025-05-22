@@ -1,0 +1,26 @@
+name: Publish Package
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish to PlatformIO Registry
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Publish package
+        env:
+          PLATFORMIO_AUTH_TOKEN: ${{ secrets.AUTHENTICATION_TOKEN }}
+        run: pio pkg publish --non-interactive
