@@ -8,7 +8,7 @@ class MenuManager
 private:
     std::vector<MenuItem *> editMenuItems;
     std::vector<MenuItem *> viewMenuItems;
-    TM1638 *module;
+    Display *display;
     int menuButton;
     int enterButton;
     int selectButton;
@@ -27,6 +27,6 @@ private:
     std::function<void(MenuItem*)> reset;
 
 public:
-    MenuManager(std::vector<MenuItem *> &viewMenuItems, std::vector<MenuItem *> &editMenuItems, TM1638 *module, int menuButton, int enterButton, int selectButton, int upButton, int resetButton, std::function<void()> save, std::function<void(MenuItem*)> reset, Preferences &preferences);
+    MenuManager(std::vector<MenuItem *> &viewMenuItems, std::vector<MenuItem *> &editMenuItems, Display *display, int menuButton, int enterButton, int selectButton, int upButton, int resetButton, std::function<void()> save, std::function<void(MenuItem*)> reset, Preferences &preferences);
     void manage();
 };

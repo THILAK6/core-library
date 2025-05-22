@@ -1,7 +1,14 @@
 #pragma once
 #include <cstdint>
-#include <TM1638/InvertedTM1638.h>
 #include <vector>
+
+#if defined(ARDUINO) && ARDUINO >= 100
+	#include "Arduino.h"
+#else
+	#include "WProgram.h"
+#endif
+
+#include "Display/Display.h"
 
 enum DisplayType {
     VALUE_AND_SHORT_NAME,
@@ -21,7 +28,7 @@ private:
     String mainName;
     String name;
     String shortName;
-    TM1638 *module;
+    Display *display;
     uint8_t displayType;
     bool isEditable;
     MenuItemType type;
@@ -50,9 +57,9 @@ private:
     } data;
 
 public:
-    MenuItem(String mainName, String name, String shortName, float value, TM1638 *module, int8_t decimalPos = 0, bool isEditable = false, float additionalValue = 0, uint8_t displayType = 0);
+    MenuItem(String mainName, String name, String shortName, float value, Display *display, int8_t decimalPos = 0, bool isEditable = false, float additionalValue = 0, uint8_t displayType = 0);
 
-    MenuItem(String mainName, String name, String shortName, std::vector<String> modes, std::vector<String> modesName,int8_t currentMode, TM1638 *module, bool isEditable = false, uint8_t displayType = 0);
+    MenuItem(String mainName, String name, String shortName, std::vector<String> modes, std::vector<String> modesName,int8_t currentMode, Display *display, bool isEditable = false, uint8_t displayType = 0);
 
     ~MenuItem();
 
@@ -61,7 +68,7 @@ public:
     void updateAdditionalValue(float valueToUpdate);
     void updateDecimalPos(int8_t decimalPos);
 
-    void display();
+    void displayItem();
 
     void displayName();
 

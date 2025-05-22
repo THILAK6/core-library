@@ -2,8 +2,8 @@
 
 #define MAX_DIGITS 5
 
-MenuItem::MenuItem(String mainName, String name, String shortName, float value, TM1638 *module, int8_t decimalPos, bool isEditable, float additionalValue, uint8_t displayType)
-    : name(name), shortName(shortName), module(module), displayType(displayType), isEditable(isEditable), mainName(mainName)
+MenuItem::MenuItem(String mainName, String name, String shortName, float value, Display *display, int8_t decimalPos, bool isEditable, float additionalValue, uint8_t displayType)
+    : name(name), shortName(shortName), display(display), displayType(displayType), isEditable(isEditable), mainName(mainName)
 {
     type = MenuItemType::ValueType;
     data.valueData.value = value;
@@ -12,8 +12,8 @@ MenuItem::MenuItem(String mainName, String name, String shortName, float value, 
     data.valueData.decimalPos = decimalPos;
 }
 
-MenuItem::MenuItem(String mainName, String name, String shortName, std::vector<String> modes, std::vector<String> modesName, int8_t currentMode, TM1638 *module, bool isEditable, uint8_t displayType)
-    : name(name), shortName(shortName), module(module), displayType(displayType), isEditable(isEditable), mainName(mainName)
+MenuItem::MenuItem(String mainName, String name, String shortName, std::vector<String> modes, std::vector<String> modesName, int8_t currentMode, Display *display, bool isEditable, uint8_t displayType)
+    : name(name), shortName(shortName), display(display), displayType(displayType), isEditable(isEditable), mainName(mainName)
 {
     type = MenuItemType::ModeType;
     new (&data.modeData.modes) std::vector<String>(modes);
@@ -86,39 +86,39 @@ void MenuItem::displayName()
 {
     if (data.modeData.isEditing)
     {
-        module->setDisplayToString(data.modeData.modes[data.modeData.currentMode], true);
+        display->setDisplayToString(data.modeData.modes[data.modeData.currentMode], true);
     }
     else
     {
-        module->setDisplayToString(name, false);
+        display->setDisplayToString(name, false);
     }
-    module->setDisplayToString(shortName, false, 0, 5);
+    display->setDisplayToString(shortName, false, 0, 5);
 }
 
 void MenuItem::displayValueAndShortName()
 {
     if (type == MenuItemType::ModeType)
     {
-        module->setDisplayToString(data.modeData.modes[data.modeData.currentMode], data.modeData.isEditing);
+        display->setDisplayToString(data.modeData.modes[data.modeData.currentMode], data.modeData.isEditing);
     }
     else
     {
         int8_t editingDigit = data.valueData.editingDigit;
         bool leadingZeros = isEditable && editingDigit != -1;
-        module->setDisplayPart(data.valueData.value, 4, 5, data.valueData.decimalPos, isEditable ? editingDigit : -1, leadingZeros);
+        display->setDisplayPart(data.valueData.value, 4, 5, data.valueData.decimalPos, isEditable ? editingDigit : -1, leadingZeros);
     }
-    module->setDisplayToString(shortName, false, 0, 5);
+    display->setDisplayToString(shortName, false, 0, 5);
 }
 
 void MenuItem::displayValue()
 {
     int8_t editingDigit = data.valueData.editingDigit;
     bool leadingZeros = isEditable && editingDigit != -1;
-    module->setDisplayPart(data.valueData.value, 4, 5, data.valueData.decimalPos, isEditable ? editingDigit : -1, leadingZeros);
-    module->setDisplayPart(data.valueData.additionalValue, 7, 3, data.valueData.decimalPos);
+    display->setDisplayPart(data.valueData.value, 4, 5, data.valueData.decimalPos, isEditable ? editingDigit : -1, leadingZeros);
+    display->setDisplayPart(data.valueData.additionalValue, 7, 3, data.valueData.decimalPos);
 }
 
-void MenuItem::display()
+void MenuItem::displayItem()
 {
     switch (displayType)
     {
