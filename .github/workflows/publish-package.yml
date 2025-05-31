@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish:
-    name: Publish to PlatformIO Registry
+  test-and-publish:
+    name: Build Examples and Publish to PlatformIO
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +20,15 @@ jobs:
       - name: Install PlatformIO
         run: pip install platformio
 
+      - name: Build all examples (esp32doit-devkit-v1)
+        run: |
+          for f in examples/**/*.ino; do
+            echo "Building $f..."
+            pio ci --lib="." --board=esp32doit-devkit-v1 "$f" || exit 1
+          done
+
       - name: Publish package
+        if: success()
         env:
           PLATFORMIO_AUTH_TOKEN: ${{ secrets.AUTHENTICATION_TOKEN }}
         run: pio pkg publish --non-interactive
