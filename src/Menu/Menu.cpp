@@ -1,33 +1,33 @@
-#include "Menu/MenuItem.h"
+#include "Menu/Menu.h"
 
 #define MAX_DIGITS 5
 
-MenuItem::MenuItem(String mainName, String name, String shortName, float value, Display *display, int8_t decimalPos, bool isEditable, float additionalValue, uint8_t displayType)
+Menu::Menu(String mainName, String name, String shortName, float value, Display *display, int8_t decimalPos, bool isEditable, float additionalValue, uint8_t displayType)
     : name(name), shortName(shortName), display(display), displayType(displayType), isEditable(isEditable), mainName(mainName)
 {
-    type = MenuItemType::ValueType;
+    type = MenuType::ValueType;
     data.valueData.value = value;
     data.valueData.additionalValue = additionalValue;
     data.valueData.editingDigit = -1;
     data.valueData.decimalPos = decimalPos;
 }
 
-MenuItem::MenuItem(String mainName, String name, String shortName, std::vector<String> modes, std::vector<String> modesName, int8_t currentMode, Display *display, bool isEditable, uint8_t displayType)
+Menu::Menu(String mainName, String name, String shortName, std::vector<String> modes, std::vector<String> modesName, int8_t currentMode, Display *display, bool isEditable, uint8_t displayType)
     : name(name), shortName(shortName), display(display), displayType(displayType), isEditable(isEditable), mainName(mainName)
 {
-    type = MenuItemType::ModeType;
+    type = MenuType::ModeType;
     new (&data.modeData.modes) std::vector<String>(modes);
     new (&data.modeData.modesName) std::vector<String>(modesName);
     data.modeData.currentMode = currentMode;
     data.modeData.isEditing = false;
 }
 
-MenuItem::~MenuItem()
+Menu::~Menu()
 {
     data.modeData.modes.~vector<String>();
 }
 
-void MenuItem::updateValueWithin()
+void Menu::updateValueWithin()
 {
     int8_t editingDigit = data.valueData.editingDigit;
     float value = data.valueData.value;
@@ -47,42 +47,33 @@ void MenuItem::updateValueWithin()
     int currentDigit = (val / increment) % 10;
     int newDigit = (currentDigit + 1) % 10;
 
-    Serial.println("value: " + String(value));
-    Serial.println("editingDigit: " + String(editingDigit));
-    Serial.println("increment: " + String(increment));
-    Serial.println("val: " + String(val));
-    Serial.println("currentDigit: " + String(currentDigit));
-    Serial.println("newDigit: " + String(newDigit));
     int newValue = val - (currentDigit * increment) + (newDigit * increment);
 
-    Serial.println("newValue: " + String(newValue));
     float valueToSet = newValue / pow(10, decimalPos);
-    Serial.println("valueToSet: " + String(valueToSet));
-    Serial.println();
     this->data.valueData.value = valueToSet;
 }
 
-void MenuItem::updateValue(float valueToUpdate)
+void Menu::updateValue(float valueToUpdate)
 {
     this->data.valueData.value = valueToUpdate;
 }
 
-void MenuItem::updateMode(int8_t modeToUpdate)
+void Menu::updateMode(int8_t modeToUpdate)
 {
     this->data.modeData.currentMode = modeToUpdate;
 }
 
-void MenuItem::updateAdditionalValue(float valueToUpdate)
+void Menu::updateAdditionalValue(float valueToUpdate)
 {
     this->data.valueData.additionalValue = valueToUpdate;
 }
 
-void MenuItem::updateDecimalPos(int8_t decimalPos)
+void Menu::updateDecimalPos(int8_t decimalPos)
 {
     this->data.valueData.decimalPos = decimalPos;
 }
 
-void MenuItem::displayName()
+void Menu::displayName()
 {
     if (data.modeData.isEditing)
     {
@@ -95,9 +86,9 @@ void MenuItem::displayName()
     display->setDisplayToString(shortName, false, 0, 5);
 }
 
-void MenuItem::displayValueAndShortName()
+void Menu::displayValueAndShortName()
 {
-    if (type == MenuItemType::ModeType)
+    if (type == MenuType::ModeType)
     {
         display->setDisplayToString(data.modeData.modes[data.modeData.currentMode], data.modeData.isEditing);
     }
@@ -110,7 +101,7 @@ void MenuItem::displayValueAndShortName()
     display->setDisplayToString(shortName, false, 0, 5);
 }
 
-void MenuItem::displayValue()
+void Menu::displayValue()
 {
     int8_t editingDigit = data.valueData.editingDigit;
     bool leadingZeros = isEditable && editingDigit != -1;
@@ -118,7 +109,7 @@ void MenuItem::displayValue()
     display->setDisplayPart(data.valueData.additionalValue, 7, 3, data.valueData.decimalPos);
 }
 
-void MenuItem::displayItem()
+void Menu::displayItem()
 {
     switch (displayType)
     {
@@ -137,7 +128,7 @@ void MenuItem::displayItem()
     }
 }
 
-void MenuItem::updateEditingDigit()
+void Menu::updateEditingDigit()
 {
     if (isEditable)
     {
@@ -149,34 +140,34 @@ void MenuItem::updateEditingDigit()
     }
 }
 
-void MenuItem::edit(bool upAction, bool moveAction)
+void Menu::edit(bool upAction, bool moveAction)
 {
     if (isEditable)
     {
-        if (type == MenuItemType::ValueType)
+        if (type == MenuType::ValueType)
         {
             editValueType(upAction, moveAction);
         }
-        else if (type == MenuItemType::ModeType)
+        else if (type == MenuType::ModeType)
         {
             editModeType(upAction, moveAction);
         }
     }
 }
 
-void MenuItem::stopEdit()
+void Menu::stopEdit()
 {
-    if (type == MenuItemType::ValueType)
+    if (type == MenuType::ValueType)
     {
         data.valueData.editingDigit = -1;
     }
-    else if (type == MenuItemType::ModeType)
+    else if (type == MenuType::ModeType)
     {
         data.modeData.isEditing = false;
     }
 }
 
-void MenuItem::editValueType(bool upAction, bool moveAction)
+void Menu::editValueType(bool upAction, bool moveAction)
 {
     if (upAction)
     {
@@ -188,7 +179,7 @@ void MenuItem::editValueType(bool upAction, bool moveAction)
     }
 }
 
-void MenuItem::editModeType(bool upAction, bool moveAction)
+void Menu::editModeType(bool upAction, bool moveAction)
 {
     if (moveAction)
     {
@@ -200,47 +191,47 @@ void MenuItem::editModeType(bool upAction, bool moveAction)
     }
 }
 
-uint8_t MenuItem::currentMode()
+uint8_t Menu::currentMode()
 {
     return data.modeData.currentMode;
 }
 
-String MenuItem::currentModeValue()
+String Menu::currentModeValue()
 {
     return data.modeData.modes[data.modeData.currentMode];
 }
 
-float MenuItem::value()
+float Menu::value()
 {
     return data.valueData.value;
 }
 
-float MenuItem::additionalValue()
+float Menu::additionalValue()
 {
     return data.valueData.additionalValue;
 }
 
-std::vector<String> MenuItem::modes()
+std::vector<String> Menu::modes()
 {
     return data.modeData.modes;
 }
 
-String MenuItem::getMainName()
+String Menu::getMainName()
 {
     return mainName;
 }
 
-MenuItemType MenuItem::getDatatype()
+MenuType Menu::getDatatype()
 {
     return type;
 }
 
-void MenuItem::setDisplayType(uint8_t displayType)
+void Menu::setDisplayType(uint8_t displayType)
 {
     this->displayType = displayType;
 }
 
-void MenuItem::setShortName(String shortName)
+void Menu::setShortName(String shortName)
 {
     this->shortName = shortName;
 }

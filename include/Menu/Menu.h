@@ -16,13 +16,13 @@ enum DisplayType {
     NAME,
 };
 
-enum class MenuItemType
+enum class MenuType
 {
     ValueType,
     ModeType
 };
 
-class MenuItem
+class Menu
 {
 private:
     String mainName;
@@ -31,7 +31,7 @@ private:
     Display *display;
     uint8_t displayType;
     bool isEditable;
-    MenuItemType type;
+    MenuType type;
     void updateValueWithin();
     void editValueType(bool upAction, bool moveAction);
     void editModeType(bool upAction, bool moveAction);
@@ -57,11 +57,11 @@ private:
     } data;
 
 public:
-    MenuItem(String mainName, String name, String shortName, float value, Display *display, int8_t decimalPos = 0, bool isEditable = false, float additionalValue = 0, uint8_t displayType = 0);
+    Menu(String mainName, String name, String shortName, float value, Display *display, int8_t decimalPos = 0, bool isEditable = false, float additionalValue = 0, uint8_t displayType = 0);
 
-    MenuItem(String mainName, String name, String shortName, std::vector<String> modes, std::vector<String> modesName,int8_t currentMode, Display *display, bool isEditable = false, uint8_t displayType = 0);
+    Menu(String mainName, String name, String shortName, std::vector<String> modes, std::vector<String> modesName,int8_t currentMode, Display *display, bool isEditable = false, uint8_t displayType = 0);
 
-    ~MenuItem();
+    ~Menu();
 
     void updateValue(float valueToUpdate);
     void updateMode(int8_t modeToUpdate);
@@ -85,7 +85,7 @@ public:
     std::vector<String> modes();
     String currentModeValue();
     String getMainName();
-    MenuItemType getDatatype();
+    MenuType getDatatype();
     void setDisplayType(uint8_t displayType);
     void setShortName(String shortName);
 };
