@@ -15,9 +15,9 @@ private:
     byte strobePin;
     byte intensity;
 
-    virtual void showValueAndShortName(MenuItem &menuItem, bool isEditable) override;
-    virtual void showValue(bool isEditable, MenuItem &menuItem, MenuItem &menuItemAdditional) override;
-    virtual void showName(MenuItem &menuItem) override;
+    void showValueAndShortName(MenuItem &menuItem, bool isEditable);
+    void showValue(bool isEditable, MenuItem &menuItem, MenuItem &menuItemAdditional);
+    void showName(MenuItem &menuItem);
 
     void setDisplayPart(float value, int startIndex, int length, int decimalPos, int blinkDigitPos, bool leadingZeros);
     void setDisplayNumber(int32_t value, int8_t startingPos, int8_t decimalPos, int8_t length, bool leadingZeros, int8_t blinkDigitPos, bool blinkState);
