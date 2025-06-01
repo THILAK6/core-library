@@ -1,18 +1,19 @@
 #ifndef LCD_DISPLAY_H
 #define LCD_DISPLAY_H
-#endif
 
 #include "Display.h"
+#include <vector>
 
+class MenuItem;
 class LcdDisplay : public Display {
-private:
 public:
-
-    LcdDisplay();
-
-    void setDisplayToString(String string, bool shouldBlink = false, const word dots = 0, const byte pos = 0) override;
-
-    void setDisplayPart(float part, int startIndex, int length, int decimalPos = 0,int blinkDigitPos = -1, bool leadingZeros = false) override;
-
-    boolean isButtonPressed(int button) override;
+    LcdDisplay() ;
+    virtual bool isButtonPressed(int button) override;
+    virtual void showMenuItems(std::vector<MenuItem> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable) override;
+    ~LcdDisplay() override;
+  private:
+    virtual void showValueAndShortName(MenuItem &menuItem, bool isEditable) override;
+    virtual void showValue(bool isEditable, MenuItem &menuItem, MenuItem &menuItemAdditional) override;
+    virtual void showName(MenuItem &menuItem) override;
 };
+#endif

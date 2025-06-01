@@ -2,13 +2,12 @@
 
 LcdDisplay::LcdDisplay(){}
 
-void LcdDisplay::setDisplayToString(String string, bool shouldBlink, const word dots, const byte pos)
-{
-}
+void showMenuItems(std::vector<MenuItem> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable) {}
 
-void LcdDisplay::setDisplayPart(float part, int startIndex, int length, int decimalPos, int blinkDigitPos, bool leadingZeros)
-{
-}
+
+void showValueAndShortName(MenuItem &menuItem, bool isEditable) {}
+void showValue(bool isEditable, MenuItem &menuItem, MenuItem &menuItemAdditional) {}
+void showName(MenuItem &menuItem) {}
 
 boolean LcdDisplay::isButtonPressed(int button)
 {

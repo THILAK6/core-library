@@ -55,7 +55,25 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "cinttypes": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "__bit_reference": "cpp",
+        "__node_handle": "cpp",
+        "locale": "cpp",
+        "optional": "cpp",
+        "bitset": "cpp",
+        "__locale": "cpp",
+        "__split_buffer": "cpp",
+        "__verbose_abort": "cpp",
+        "__hash_table": "cpp",
+        "__tree": "cpp",
+        "complex": "cpp",
+        "execution": "cpp",
+        "ios": "cpp",
+        "mutex": "cpp",
+        "print": "cpp",
+        "queue": "cpp",
+        "stack": "cpp",
+        "variant": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

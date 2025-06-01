@@ -1,20 +1,41 @@
 #ifndef LCD_DISPLAY_H
 #define LCD_DISPLAY_H
-#endif
 
 #include "Display.h"
-#include <TM1638/TM1638.h>
+#include <map>
+#include <cstdint>
+#include <vector>
 
-class SevenSegmentDisplay : public Display {
+class SevenSegmentDisplay : public Display
+{
+
 private:
-    TM1638 *module;
+    byte dataPin;
+    byte clockPin;
+    byte strobePin;
+    byte intensity;
+
+    virtual void showValueAndShortName(MenuItem &menuItem, bool isEditable) override;
+    virtual void showValue(bool isEditable, MenuItem &menuItem, MenuItem &menuItemAdditional) override;
+    virtual void showName(MenuItem &menuItem) override;
+
+    void setDisplayPart(float value, int startIndex, int length, int decimalPos, int blinkDigitPos, bool leadingZeros);
+    void setDisplayNumber(int32_t value, int8_t startingPos, int8_t decimalPos, int8_t length, bool leadingZeros, int8_t blinkDigitPos, bool blinkState);
+    void setDisplayToString(const String string, const bool shouldBlink, const byte pos);
+    void setDisplayToString(const String string, const byte pos);
+    void setDisplayDigit(byte digit, byte pos, boolean dot);
+    void clearDisplayDigit(byte pos, boolean dot);
+    void sendChar(byte pos, byte data, boolean dot);
+    void sendCommand(byte cmd);
+    void sendData(byte address, byte data);
+    void send(byte data);
+    byte receive();
+    byte getButtons();
+    std::map<int, bool> previousButtonStates;
 public:
-
-    SevenSegmentDisplay(TM1638 *module);
-
-    void setDisplayToString(String string, bool shouldBlink = false, const word dots = 0, const byte pos = 0) override;
-
-    void setDisplayPart(float part, int startIndex, int length, int decimalPos = 0,int blinkDigitPos = -1, bool leadingZeros = false) override;
-
-    boolean isButtonPressed(int button) override;
+    SevenSegmentDisplay(byte dataPin, byte clockPin, byte strobePin, byte intensity = 7);
+    virtual bool isButtonPressed(int button) override;
+    virtual void showMenuItems(std::vector<MenuItem> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable) override;
+    ~SevenSegmentDisplay() override;
 };
+#endif
