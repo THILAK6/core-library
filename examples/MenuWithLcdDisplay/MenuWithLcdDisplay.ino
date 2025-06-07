@@ -14,7 +14,7 @@ void setup()
     manager = new MenuManager(
         viewMenus,
         editMenus,
-        new LcdDisplay(0, 1, 2),
+        new LcdDisplay(0x27, 20, 4, 13, 12, 11),
         0,
         1,
         2,
