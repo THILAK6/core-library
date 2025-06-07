@@ -62,12 +62,12 @@ public:
     void updateDecimalPos(int8_t decimalPos);
     uint8_t currentMode();
     float value();
-    String currentModeValue();
+    String currentModeValue() const;
     std::vector<String> modes();
     String getMainName();
-    String getName();
+    String getName() const;
     String getShortName();
-    MenuType getDatatype();
+    MenuType getDatatype() const;
     void setShortName(String shortName);
     void updateEditingDigit();
     void editValueType(bool upAction, bool moveAction);
@@ -76,6 +76,6 @@ public:
     void edit(bool upAction, bool moveAction);
     bool getIsEditing();
     int8_t getEditingDigit();
-    ValueData getValueData();
-    ModeData getModeData();
+    ValueData getValueData() const;
+    ModeData getModeData() const;
 };

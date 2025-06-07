@@ -121,7 +121,7 @@ uint8_t MenuItem::currentMode()
     return data.modeData.currentMode;
 }
 
-String MenuItem::currentModeValue()
+String MenuItem::currentModeValue() const
 {
     return data.modeData.modes[data.modeData.currentMode];
 }
@@ -141,7 +141,7 @@ String MenuItem::getMainName()
     return mainName;
 }
 
-String MenuItem::getName()
+String MenuItem::getName() const
 {
     return name;
 }
@@ -151,7 +151,7 @@ String MenuItem::getShortName()
     return shortName;
 }
 
-MenuType MenuItem::getDatatype()
+MenuType MenuItem::getDatatype() const
 {
     return type;
 }
@@ -229,12 +229,12 @@ int8_t MenuItem::getEditingDigit()
     return data.valueData.editingDigit;
 }
 
-MenuItem::ValueData MenuItem::getValueData()
+MenuItem::ValueData MenuItem::getValueData() const
 {
     return data.valueData;
 }
 
-MenuItem::ModeData MenuItem::getModeData()
+MenuItem::ModeData MenuItem::getModeData() const
 {
     return data.modeData;
 }

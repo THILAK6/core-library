@@ -2,11 +2,12 @@
 #define LCD_DISPLAY_H
 
 #include "Display.h"
+#include "Menu/MenuItem.h" 
 #include "ShiftIO/ReadShiftInput.h"
 #include "Button/ButtonManager.h"
 #include <vector>
 #include <inttypes.h>
-#include "Print.h" 
+#include "Print.h"
 #include <Wire.h>
 
 // commands
@@ -51,21 +52,22 @@
 #define LCD_BACKLIGHT 0x08
 #define LCD_NOBACKLIGHT 0x00
 
-#define En B00000100	// Enable bit
-#define Rw B00000010	// Read/Write bit
-#define Rs B00000001	// Register select bit
+#define En B00000100 // Enable bit
+#define Rw B00000010 // Read/Write bit
+#define Rs B00000001 // Register select bit
 
 class MenuItem;
 
-class LcdDisplay : public Display, public Print {
+class LcdDisplay : public Display, public Print
+{
 public:
     LcdDisplay(uint8_t address, uint8_t columns, uint8_t rows, uint8_t dataPin, uint8_t clockPin, uint8_t latchPin);
     ~LcdDisplay() override;
-    
+
     // Display interface implementations
     bool isButtonPressed(int button) override;
     void showMenuItems(std::vector<MenuItem> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable) override;
-    
+
     // LCD specific methods
     void init();
     void init(uint8_t serialData, uint8_t serialClock);
@@ -75,7 +77,7 @@ public:
     void setCursor(uint8_t column, uint8_t row);
     void display();
     void backlights(void);
-    void setupInputs(uint8_t menuButton, uint8_t enterButton, uint8_t selectButton, uint8_t upButton, uint8_t resetButton);
+    void setupInputs();
 
     virtual size_t write(uint8_t value);
 
@@ -90,7 +92,8 @@ private:
     uint8_t numLines;
     ReadShiftInput shiftInput;
     ButtonManager buttonManager;
-    
+    bool blinkState = true;
+
     void initPriv();
     void initPriv(uint8_t serialData, uint8_t serialClock);
     void command(uint8_t value);
@@ -98,5 +101,16 @@ private:
     void write4bits(uint8_t value);
     void expanderWrite(uint8_t data);
     void pulseEnable(uint8_t data);
+
+    void updateBlinkState();
+    bool isBlinkOn() const;
+    void displayMenuItem(const MenuItem &menuItem, int rowIndex, bool isCurrentItem, bool isEditable);
+    String formatMenuItemName(const MenuItem &menuItem, bool isCurrentItem, bool isEditable);
+    String formatMenuItemValue(const MenuItem &menuItem, bool isCurrentItem, bool isEditable);
+    String formatValueWithDigitBlinking(float value, int8_t decimalPos, bool shouldBlinkDigit, int8_t editingDigit);
+    String formatDecimalValue(float val, int8_t decimalPos);
+    String formatIntegerValue(float val);
+    String applyDigitBlinking(const String &formattedValue, int8_t editingDigit);
+    void clearUnusedRows(int maxItems);
 };
 #endif

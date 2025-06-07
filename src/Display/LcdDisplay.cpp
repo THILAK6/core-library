@@ -25,22 +25,16 @@ inline void LcdDisplay::write(uint8_t value)
 LcdDisplay::LcdDisplay(uint8_t address, uint8_t columns, uint8_t rows, uint8_t dataPin, uint8_t clockPin, uint8_t latchPin)
     : address(address), columns(columns), rows(rows),
       shiftInput(ReadShiftInput(dataPin, clockPin, latchPin)),
-      buttonManager()
+      buttonManager(),
+      blinkState(true)
 {
     backlight = LCD_NOBACKLIGHT;
 }
 
 LcdDisplay::~LcdDisplay() {}
 
-void LcdDisplay::setupInputs(uint8_t menuButton, uint8_t enterButton, uint8_t selectButton, uint8_t upButton, uint8_t resetButton)
+void LcdDisplay::setupInputs()
 {
-    std::vector<std::pair<std::string, int>> buttonMap = {
-        {"menu", menuButton},
-        {"enter", enterButton},
-        {"select", selectButton},
-        {"up", upButton},
-        {"reset", resetButton}
-    };
     shiftInput.setRegisterCount(4);
 
     // for (size_t i = 0; i < buttonMap.size(); ++i) {
@@ -50,58 +44,236 @@ void LcdDisplay::setupInputs(uint8_t menuButton, uint8_t enterButton, uint8_t se
     //         return this->shiftInput.readBit(bit);
     //     });
     // }
-    for (int i = 0; i < 32; ++i) {
-        buttonManager.addUnnamedButton([this, i]() { return shiftInput.readBit(i); });
+    for (int i = 0; i < 32; ++i)
+    {
+        buttonManager.addUnnamedButton([this, i]()
+                                       { return shiftInput.readBit(i); });
     }
 }
 
 void LcdDisplay::showMenuItems(std::vector<MenuItem> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable)
 {
+    // Display header
     setCursor(0, 0);
     print("      TK TECH       ");
-    int maxItems = 3;
-    if (menuItems.size() < maxItems)
-    {
-        maxItems = menuItems.size();
-    }
+
+    // Determine how many items to show
+    int maxItems = std::min(3, static_cast<int>(menuItems.size()));
+
+    // Handle blinking state
+    updateBlinkState();
+
+    // Display each menu item
     for (int i = 0; i < maxItems; i++)
     {
-        String name, value;
+        displayMenuItem(menuItems[i], i, i == currentMenuItem, isEditable);
+    }
 
-        if (menuItems[i].getDatatype() == MenuType::ValueType)
+    // Clear any unused rows
+    clearUnusedRows(maxItems);
+}
+
+void LcdDisplay::updateBlinkState()
+{
+    static unsigned long lastBlinkTime = 0;
+    const unsigned long blinkInterval = 500;
+
+    unsigned long currentTime = millis();
+    if (currentTime - lastBlinkTime >= blinkInterval)
+    {
+        blinkState = !blinkState;
+        lastBlinkTime = currentTime;
+    }
+}
+
+bool LcdDisplay::isBlinkOn() const
+{
+    return blinkState;
+}
+
+void LcdDisplay::displayMenuItem(const MenuItem &menuItem, int rowIndex, bool isCurrentItem, bool isEditable)
+{
+    String name = formatMenuItemName(menuItem, isCurrentItem, isEditable);
+    String value = formatMenuItemValue(menuItem, isCurrentItem, isEditable);
+
+    // Format and display the menu item
+    if (name.length() > 8)
+        name = name.substring(0, 8);
+    if (value.length() > 11)
+        value = value.substring(0, 11);
+
+    while (name.length() < 8)
+        name = " " + name;
+    while (value.length() < 11)
+        value += " ";
+
+    String displayString = name + ":" + value;
+
+    setCursor(0, rowIndex + 1);
+    print(displayString);
+}
+
+String LcdDisplay::formatMenuItemName(const MenuItem &menuItem, bool isCurrentItem, bool isEditable)
+{
+    String name = menuItem.getName();
+    bool isActivelyEditing = false;
+    
+    if (menuItem.getDatatype() == MenuType::ValueType) {
+        MenuItem::ValueData valueData = menuItem.getValueData();
+        isActivelyEditing = (valueData.editingDigit != -1);
+    }
+    else if (menuItem.getDatatype() == MenuType::ModeType) {
+        MenuItem::ModeData modeData = menuItem.getModeData();
+        isActivelyEditing = modeData.isEditing;
+    }
+    
+    bool shouldBlinkName = isCurrentItem && isEditable && !isActivelyEditing;
+  
+    if (shouldBlinkName && !isBlinkOn())
+    {
+        name = String("");
+        for (int j = 0; j < menuItem.getName().length(); j++)
         {
-            value = String(menuItems[i].value(), 2);
+            name += " ";
         }
-        else if (menuItems[i].getDatatype() == MenuType::ModeType)
+    }
+
+    return name;
+}
+
+String LcdDisplay::formatMenuItemValue(const MenuItem &menuItem, bool isCurrentItem, bool isEditable)
+{
+    if (menuItem.getDatatype() == MenuType::ValueType)
+    {
+        MenuItem::ValueData valueData = menuItem.getValueData();
+        bool shouldBlinkDigit = false;
+        int8_t editingDigit = -1;
+
+        if (isCurrentItem && isEditable)
         {
-            value = menuItems[i].currentModeValue();
+            editingDigit = valueData.editingDigit;
+            shouldBlinkDigit = (editingDigit >= 0);
+        }
+
+        return formatValueWithDigitBlinking(valueData.value, valueData.decimalPos, shouldBlinkDigit, editingDigit);
+    }
+    else if (menuItem.getDatatype() == MenuType::ModeType)
+    {
+        MenuItem::ModeData modeData = menuItem.getModeData();
+        String modeValue = modeData.modes[modeData.currentMode];
+
+        bool shouldBlinkMode = isCurrentItem && isEditable && modeData.isEditing;
+        if (shouldBlinkMode && !isBlinkOn())
+        {
+            modeValue = String("");
+            for (int j = 0; j < modeValue.length(); j++)
+            {
+                modeValue += " ";
+            }
+        }
+        return modeValue;
+    }
+
+    return "";
+}
+
+String LcdDisplay::formatValueWithDigitBlinking(float value, int8_t decimalPos, bool shouldBlinkDigit, int8_t editingDigit)
+{
+    String formattedValue;
+
+    // Format value with decimal places if needed
+    if (decimalPos > 0)
+    {
+        formattedValue = formatDecimalValue(value, decimalPos);
+    }
+    else
+    {
+        formattedValue = formatIntegerValue(value);
+    }
+
+    // Handle digit blinking if needed
+    if (shouldBlinkDigit && !isBlinkOn())
+    {
+        formattedValue = applyDigitBlinking(formattedValue, editingDigit);
+    }
+
+    return formattedValue;
+}
+
+String LcdDisplay::formatDecimalValue(float val, int8_t decimalPos)
+{
+    String formattedValue = String(val, decimalPos);
+
+    int decimalPointPos = formattedValue.indexOf('.');
+    if (decimalPointPos != -1)
+    {
+        String intPart = formattedValue.substring(0, decimalPointPos);
+        String decPart = formattedValue.substring(decimalPointPos);
+
+        int padLength = 5 - decimalPos;
+        while (intPart.length() < padLength)
+        {
+            intPart = "0" + intPart;
+        }
+
+        formattedValue = intPart + decPart;
+    }
+
+    return formattedValue;
+}
+
+String LcdDisplay::formatIntegerValue(float val)
+{
+    String formattedValue = String(int(val));
+    while (formattedValue.length() < 5)
+    {
+        formattedValue = "0" + formattedValue;
+    }
+    return formattedValue;
+}
+
+String LcdDisplay::applyDigitBlinking(const String &formattedValue, int8_t editingDigit)
+{
+    String result = formattedValue;
+    int decimalPointPos = result.indexOf('.');
+    int effectivePos;
+
+    if (decimalPointPos == -1)
+    {
+        effectivePos = editingDigit;
+    }
+    else
+    {
+        if (editingDigit < decimalPointPos)
+        {
+            effectivePos = editingDigit;
         }
         else
         {
-            continue;
+            effectivePos = editingDigit + 1;
         }
+    }
 
-        name = menuItems[i].getName();
+    if (effectivePos >= 0 && effectivePos < result.length() && result[effectivePos] != '.')
+    {
+        result[effectivePos] = ' ';
+    }
 
-        if (name.length() > 8)
-            name = name.substring(0, 8);
-        if (value.length() > 11)
-            value = value.substring(0, 11);
+    return result;
+}
 
-        while (name.length() < 8)
-            name = " " + name;
-        while (value.length() < 11)
-            value += " ";
-
-        String displayString = name + ":" + value;
-
+void LcdDisplay::clearUnusedRows(int maxItems)
+{
+    for (int i = maxItems; i < 3; i++)
+    {
         setCursor(0, i + 1);
-        print(displayString);
+        print("                    ");
     }
 }
 
 bool LcdDisplay::isButtonPressed(int button)
 {
+    shiftInput.update();
     return buttonManager.getButton(button).isPressed();
 }
 

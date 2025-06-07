@@ -53,28 +53,6 @@ void MenuManager::manage()
     bool isEnterButtonPressed = display->isButtonPressed(enterButton);
     bool isResetButtonPressed = display->isButtonPressed(resetButton);
 
-    if(isMenuButtonPressed)
-    {
-        Serial.println("Menu button pressed");
-    }
-    if(isUpButtonPressed)
-    {
-        Serial.println("Up button pressed");
-    }
-    if(isSelectButtonPressed)
-    {
-        Serial.println("Select button pressed");
-    }
-    if(isEnterButtonPressed)
-    {
-        Serial.println("Enter button pressed");
-    }
-    if(isResetButtonPressed)
-    {
-        Serial.println("Reset button pressed");
-    }
-
-
     if (isMenuButtonPressed)
     {
         isEditMenuActive = true;
