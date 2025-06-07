@@ -6,7 +6,7 @@ Menu::Menu(std::vector<MenuItem> menuItems, Display *display, bool isEditable, D
 
 Menu::~Menu()
 {
-    menuItems.~vector<MenuItem>();
+    // menuItems.~vector<MenuItem>();
 }
 
 void Menu::displayMenu()

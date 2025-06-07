@@ -2,6 +2,8 @@
 #define LCD_DISPLAY_H
 
 #include "Display.h"
+#include "ShiftIO/ReadShiftInput.h"
+#include "Button/ButtonManager.h"
 #include <vector>
 #include <inttypes.h>
 #include "Print.h" 
@@ -57,7 +59,7 @@ class MenuItem;
 
 class LcdDisplay : public Display, public Print {
 public:
-    LcdDisplay(uint8_t address, uint8_t columns, uint8_t rows);
+    LcdDisplay(uint8_t address, uint8_t columns, uint8_t rows, uint8_t dataPin, uint8_t clockPin, uint8_t latchPin);
     ~LcdDisplay() override;
     
     // Display interface implementations
@@ -72,6 +74,8 @@ public:
     void home();
     void setCursor(uint8_t column, uint8_t row);
     void display();
+    void backlights(void);
+    void setupInputs(uint8_t menuButton, uint8_t enterButton, uint8_t selectButton, uint8_t upButton, uint8_t resetButton);
 
     virtual size_t write(uint8_t value);
 
@@ -84,6 +88,8 @@ private:
     uint8_t displayControl;
     uint8_t displayMode;
     uint8_t numLines;
+    ReadShiftInput shiftInput;
+    ButtonManager buttonManager;
     
     void initPriv();
     void initPriv(uint8_t serialData, uint8_t serialClock);

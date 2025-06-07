@@ -5,6 +5,10 @@ MenuItem *accessDecider;
 MenuItem *password;
 MenuItem *customPassword;
 
+// #define INPUT_CLOCK 27
+// #define INPUT_LATCH 14
+// #define INPUT_DATA 13
+
 Menu *customPasswordMenu;
 
 MenuManager::MenuManager(std::vector<Menu *> &viewMenus, std::vector<Menu *> &editMenus, Display *display, int menuButton, int enterButton, int selectButton, int upButton, int resetButton, std::function<void()> save, std::function<void(Menu*)> reset, Preferences &preferences)
@@ -48,6 +52,28 @@ void MenuManager::manage()
     bool isSelectButtonPressed = display->isButtonPressed(selectButton);
     bool isEnterButtonPressed = display->isButtonPressed(enterButton);
     bool isResetButtonPressed = display->isButtonPressed(resetButton);
+
+    if(isMenuButtonPressed)
+    {
+        Serial.println("Menu button pressed");
+    }
+    if(isUpButtonPressed)
+    {
+        Serial.println("Up button pressed");
+    }
+    if(isSelectButtonPressed)
+    {
+        Serial.println("Select button pressed");
+    }
+    if(isEnterButtonPressed)
+    {
+        Serial.println("Enter button pressed");
+    }
+    if(isResetButtonPressed)
+    {
+        Serial.println("Reset button pressed");
+    }
+
 
     if (isMenuButtonPressed)
     {

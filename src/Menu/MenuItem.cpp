@@ -68,8 +68,11 @@ MenuItem::MenuItem(String mainName, String name, String shortName, std::vector<S
 
 MenuItem::~MenuItem()
 {
-    data.modeData.modes.~vector<String>();
-    data.modeData.modesName.~vector<String>();
+    if(type == MenuType::ModeType)
+    {
+        data.modeData.modes.~vector<String>();
+        data.modeData.modesName.~vector<String>();
+    }
 }
 
 void MenuItem::updateValueWithin()
