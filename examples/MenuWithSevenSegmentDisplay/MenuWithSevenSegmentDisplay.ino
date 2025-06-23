@@ -21,7 +21,7 @@ void setup()
         3,
         4,
         []() {},
-        [](Menu* menu) {},
+        [](MenuItem* menuItem) {},
         prefs
     );
 }

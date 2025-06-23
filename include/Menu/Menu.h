@@ -33,4 +33,6 @@ public:
     void edit(bool upAction, bool moveAction);
     void setDisplayType(DisplayMode displayMode);
     bool nextMenuItem();
+    MenuItem* getCurrentMenuItem();
+
 };

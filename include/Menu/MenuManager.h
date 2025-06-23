@@ -24,10 +24,10 @@ private:
     void nextEditMenuItem(bool isCustomPasswordChange);
     void nextViewMenu();
     std::function<void()> save;
-    std::function<void(Menu*)> reset;
+    std::function<void(MenuItem*)> reset;
 
 public:
-    MenuManager(std::vector<Menu *> &viewMenus, std::vector<Menu *> &editMenus, Display *display, int menuButton, int enterButton, int selectButton, int upButton, int resetButton, std::function<void()> save, std::function<void(Menu*)> reset, Preferences &preferences);
+    MenuManager(std::vector<Menu *> &viewMenus, std::vector<Menu *> &editMenus, Display *display, int menuButton, int enterButton, int selectButton, int upButton, int resetButton, std::function<void()> save, std::function<void(MenuItem*)> reset, Preferences &preferences);
     ~MenuManager();
     void manage();
 };

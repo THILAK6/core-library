@@ -11,7 +11,7 @@ MenuItem *customPassword;
 
 Menu *customPasswordMenu;
 
-MenuManager::MenuManager(std::vector<Menu *> &viewMenus, std::vector<Menu *> &editMenus, Display *display, int menuButton, int enterButton, int selectButton, int upButton, int resetButton, std::function<void()> save, std::function<void(Menu*)> reset, Preferences &preferences)
+MenuManager::MenuManager(std::vector<Menu *> &viewMenus, std::vector<Menu *> &editMenus, Display *display, int menuButton, int enterButton, int selectButton, int upButton, int resetButton, std::function<void()> save, std::function<void(MenuItem*)> reset, Preferences &preferences)
     : viewMenus(viewMenus), display(display), menuButton(menuButton), enterButton(enterButton), selectButton(selectButton), upButton(upButton), resetButton(resetButton), save(save), reset(reset), preferences(preferences)
 {
     int currentAccessMode = preferences.getInt("accessMode", 0);
@@ -113,7 +113,8 @@ void MenuManager::viewMenuControl(bool isUpButtonPressed, bool isResetButtonPres
     }
     if (isResetButtonPressed)
     {
-        reset(viewMenus[currentViewMenu]);
+        MenuItem* currentMenuItem = viewMenus[currentViewMenu]->getCurrentMenuItem();
+        reset(currentMenuItem);
     }
     viewMenus[currentViewMenu]->displayMenu();
 }

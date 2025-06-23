@@ -2,7 +2,8 @@
 
 Menu::Menu(std::vector<MenuItem> menuItems, Display *display, bool isEditable, DisplayMode displayMode)
     : menuItems(menuItems), display(display), displayMode(displayMode), isEditable(isEditable)
-{}
+{
+}
 
 Menu::~Menu()
 {
@@ -48,4 +49,9 @@ bool Menu::nextMenuItem()
         return false;
     }
     return true;
+}
+
+MenuItem* Menu::getCurrentMenuItem()
+{
+    return &menuItems[currentMenuItem];
 }
