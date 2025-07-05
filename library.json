@@ -1,8 +1,26 @@
 {
     "name": "core-library",
-    "version": "1.0.9",
-    "description": "A library that provides core functionality",
-    "authors": [
+    "version": "1.1.0",
+    "description": "A library that provides core functionality for Arduino projects, supporting multiple platforms and display modules.",
+    "keywords": [
+      "arduino",
+      "core",
+      "display",
+      "menu",
+      "button",
+      "tm1638",
+      "lcd",
+      "seven-segment"
+    ],
+ "authors": [
+    {
+      "name": "Thilak"
+    },
+    {
+      "name": "Kavin"
+    }
+  ],
+    "maintainers": [
       {
         "name": "THILAK6"
       }
@@ -11,9 +29,23 @@
       "type": "git",
       "url": "https://github.com/THILAK6/core-library.git"
     },
+    "homepage": "https://github.com/THILAK6/core-library",
+    "documentation": "https://github.com/THILAK6/core-library#readme",
+    "examples": [
+      "examples/MenuWithLcdDisplay/MenuWithLcdDisplay.ino",
+      "examples/MenuWithSevenSegmentDisplay/MenuWithSevenSegmentDisplay.ino"
+    ],
     "license": "MIT",
-    "frameworks": ["arduino"],
-    "platforms": ["espressif32", "atmelavr"],
-    "reference": ["https://github.com/rjbatista/tm1638-library", "https://github.com/iakop/LiquidCrystal_I2C_ESP32"]
+    "frameworks": [
+      "arduino"
+    ],
+    "platforms": [
+      "espressif32",
+      "atmelavr"
+    ],
+    "dependencies": [],
+    "reference": [
+      "https://github.com/rjbatista/tm1638-library",
+      "https://github.com/iakop/LiquidCrystal_I2C_ESP32"
+    ]
   }
-  
