@@ -51,7 +51,7 @@ void LcdDisplay::setupInputs()
     }
 }
 
-void LcdDisplay::showMenuItems(std::vector<MenuItem> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable)
+void LcdDisplay::showMenuItems(std::vector<MenuItem*> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable)
 {
     // Display header
     setCursor(0, 0);
@@ -66,7 +66,7 @@ void LcdDisplay::showMenuItems(std::vector<MenuItem> &menuItems, int8_t currentM
     // Display each menu item
     for (int i = 0; i < maxItems; i++)
     {
-        displayMenuItem(menuItems[i], i, i == currentMenuItem, isEditable);
+        displayMenuItem(*menuItems[i], i, i == currentMenuItem, isEditable);
     }
 
     // Clear any unused rows

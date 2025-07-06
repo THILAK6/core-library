@@ -22,7 +22,7 @@ class Display {
   public:
     Display() {}
     virtual bool isButtonPressed(int button) = 0;
-    virtual void showMenuItems(std::vector<MenuItem> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable) = 0;
+    virtual void showMenuItems(std::vector<MenuItem*> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable) = 0;
     virtual ~Display() {}  
   };
 

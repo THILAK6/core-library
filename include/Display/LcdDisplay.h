@@ -66,7 +66,7 @@ public:
 
     // Display interface implementations
     bool isButtonPressed(int button) override;
-    void showMenuItems(std::vector<MenuItem> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable) override;
+    void showMenuItems(std::vector<MenuItem*> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable) override;
 
     // LCD specific methods
     void init();

@@ -20,6 +20,7 @@ void ReadShiftInput::update() {
     for (int i = 0; i < numRegisters * 8; i++) {
         // Read one bit at a time
         bool bitVal = digitalRead(dataPin);
+        Serial.print(bitVal ? "1" : "0");
         state.push_back(bitVal ? HIGH : LOW);
 
         digitalWrite(clockPin, HIGH);

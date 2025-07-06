@@ -18,12 +18,12 @@ private:
     DisplayMode displayMode;
     bool isEditable;
     int8_t currentMenuItem = 0;
-    std::vector<MenuItem> menuItems;
+    std::vector<MenuItem*> menuItems;
     void editValueType(bool upAction, bool moveAction);
     void editModeType(bool upAction, bool moveAction);
 
 public:
-    Menu(std::vector<MenuItem> menuItems, Display *display, bool isEditable, DisplayMode displayMode);
+    Menu(const std::vector<MenuItem*> &menuItems, Display *display, bool isEditable, DisplayMode displayMode);
 
     ~Menu();
 

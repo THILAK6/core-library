@@ -23,9 +23,9 @@ MenuManager::MenuManager(std::vector<Menu *> &viewMenus, std::vector<Menu *> &ed
     customPassword = new MenuItem("Custom Password", "cpass", "cps", customPasswordValue, 0);
     password = new MenuItem("Default Password", "PASSW", "PAS", 0, 0);
 
-    Menu* accessDeciderMenu = new Menu({*accessDecider}, display, true, VALUE_AND_SHORT_NAME);
-    Menu* passwordMenu = new Menu({*password}, display, true, VALUE_AND_SHORT_NAME);
-    customPasswordMenu = new Menu({*customPassword}, display, true, VALUE_AND_SHORT_NAME);
+    Menu* accessDeciderMenu = new Menu({accessDecider}, display, true, VALUE_AND_SHORT_NAME);
+    Menu* passwordMenu = new Menu({password}, display, true, VALUE_AND_SHORT_NAME);
+    customPasswordMenu = new Menu({customPassword}, display, true, VALUE_AND_SHORT_NAME);
 
     editMenus.insert(editMenus.begin(), passwordMenu);
     editMenus.insert(editMenus.end(), {customPasswordMenu, accessDeciderMenu});

@@ -183,25 +183,25 @@ byte SevenSegmentDisplay::getButtons(void)
   return keys;
 }
 
-void SevenSegmentDisplay::showMenuItems(std::vector<MenuItem> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable)
+void SevenSegmentDisplay::showMenuItems(std::vector<MenuItem*> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable)
 {
     switch (displayMode)
     {
     case DisplayMode::VALUE_AND_SHORT_NAME:
-        showValueAndShortName(menuItems[0], isEditable);
+        showValueAndShortName(*menuItems[0], isEditable);
         break;
     case DisplayMode::VALUE:
         if (menuItems.size() > 1)
         {
-            showValue(isEditable, menuItems[0], menuItems[1]);
+            showValue(isEditable, *menuItems[0], *menuItems[1]);
         }
         else
         {
-            showValue(isEditable, menuItems[0], menuItems[0]);
+            showValue(isEditable, *menuItems[0], *menuItems[0]);
         }
         break;
     case DisplayMode::NAME:
-        showName(menuItems[0]);
+        showName(*menuItems[0]);
         break;
     }
 }

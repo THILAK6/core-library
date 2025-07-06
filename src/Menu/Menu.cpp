@@ -1,6 +1,6 @@
 #include "Menu/Menu.h"
 
-Menu::Menu(std::vector<MenuItem> menuItems, Display *display, bool isEditable, DisplayMode displayMode)
+Menu::Menu(const std::vector<MenuItem*> &menuItems, Display *display, bool isEditable, DisplayMode displayMode)
     : menuItems(menuItems), display(display), displayMode(displayMode), isEditable(isEditable)
 {
 }
@@ -19,7 +19,7 @@ void Menu::edit(bool upAction, bool moveAction)
 {
     if (isEditable)
     {
-        menuItems[currentMenuItem].edit(upAction, moveAction);
+        menuItems[currentMenuItem]->edit(upAction, moveAction);
     }
 }
 
@@ -27,7 +27,7 @@ void Menu::stopEdit()
 {
     if (isEditable)
     {
-        menuItems[currentMenuItem].stopEdit();
+        menuItems[currentMenuItem]->stopEdit();
     }
 }
 
@@ -53,5 +53,5 @@ bool Menu::nextMenuItem()
 
 MenuItem* Menu::getCurrentMenuItem()
 {
-    return &menuItems[currentMenuItem];
+    return menuItems[currentMenuItem];
 }
