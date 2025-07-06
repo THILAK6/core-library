@@ -10,7 +10,7 @@ MenuItem* item1 = new MenuItem("Item 1", "Value 1", "V", 1, 0);
 
 volatile MenuItem* volatileItem1 = item1;
 
-Menu viewMenu({*item1}, &display, false, DisplayMode::VALUE);
+Menu viewMenu({item1}, &display, false, DisplayMode::VALUE);
 
 std::vector<Menu*> viewMenus = {&viewMenu};
 std::vector<Menu*> editMenus;
