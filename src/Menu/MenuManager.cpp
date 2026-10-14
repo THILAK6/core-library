@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "Menu/MenuManager.h"
 #define DEFAULT_PASSWORD 98765
 
@@ -11,11 +12,22 @@ MenuItem *customPassword;
 
 Menu *customPasswordMenu;
 
+MenuManager::MenuManager(std::vector<Menu *> &viewMenus, std::vector<Menu *> &editMenus, Display *display, int menuButton, int enterButton, int selectButton, int upButton, int resetButton, std::function<void()> save, Preferences &preferences)
+    : MenuManager(viewMenus, editMenus, display, menuButton, enterButton, selectButton, upButton, resetButton, save, nullptr, preferences)
+{
+}
+
 MenuManager::MenuManager(std::vector<Menu *> &viewMenus, std::vector<Menu *> &editMenus, Display *display, int menuButton, int enterButton, int selectButton, int upButton, int resetButton, std::function<void()> save, std::function<void(MenuItem*)> reset, Preferences &preferences)
     : viewMenus(viewMenus), display(display), menuButton(menuButton), enterButton(enterButton), selectButton(selectButton), upButton(upButton), resetButton(resetButton), save(save), reset(reset), preferences(preferences)
 {
     int currentAccessMode = preferences.getInt("accessMode", 0);
+    if (currentAccessMode < 0 || currentAccessMode > 1) {
+        currentAccessMode = 0;
+    }
     float customPasswordValue = preferences.getFloat("CustomPass", 0);
+    if (isnan(customPasswordValue) || isinf(customPasswordValue)) {
+        customPasswordValue = 0.0f;
+    }
 
     std::vector<String> accessModes = {"FuLL ", "pASS "};
     std::vector<String> accessModesName = {"Full Access", "Password Access"};
@@ -55,7 +67,24 @@ void MenuManager::manage()
 
     if (isMenuButtonPressed)
     {
+        Serial.println("[Button] MENU clicked");
         isEditMenuActive = true;
+    }
+    if (isUpButtonPressed)
+    {
+        Serial.println("[Button] UP clicked");
+    }
+    if (isSelectButtonPressed)
+    {
+        Serial.println("[Button] SELECT clicked");
+    }
+    if (isEnterButtonPressed)
+    {
+        Serial.println("[Button] ENTER clicked");
+    }
+    if (isResetButtonPressed)
+    {
+        Serial.println("[Button] RESET clicked");
     }
 
     if (isEditMenuActive)
@@ -72,7 +101,14 @@ void MenuManager::editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPr
 {
     if (isResetButtonPressed)
     {
+        if (isEditing)
+        {
+            preferences.putFloat("CustomPass", customPassword->value());
+            preferences.putInt("accessMode", accessDecider->currentMode());
+            if (save) save();
+        }
         editMenus[currentEditMenu]->stopEdit();
+        isEditing = false;
         isEditMenuActive = false;
         currentEditMenu = 0;
     }
@@ -94,10 +130,18 @@ void MenuManager::editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPr
         else
         {
             isEditing = true;
-            editMenus[currentEditMenu]->edit(isUpButtonPressed, true);
+            MenuItem* cur = editMenus[currentEditMenu]->getCurrentMenuItem();
+            if (cur && cur->getDatatype() == MenuType::ModeType)
+            {
+                cur->edit(false, false);
+            }
+            else
+            {
+                editMenus[currentEditMenu]->edit(false, true);
+            }
         }
     }
-    if (isEditing)
+    else if (isEditing)
     {
         editMenus[currentEditMenu]->edit(isUpButtonPressed, isSelectButtonPressed);
     }
@@ -114,7 +158,14 @@ void MenuManager::viewMenuControl(bool isUpButtonPressed, bool isResetButtonPres
     if (isResetButtonPressed)
     {
         MenuItem* currentMenuItem = viewMenus[currentViewMenu]->getCurrentMenuItem();
-        reset(currentMenuItem);
+        if (currentMenuItem != nullptr)
+        {
+            currentMenuItem->triggerReset();
+        }
+        if (reset != nullptr)
+        {
+            reset(currentMenuItem);
+        }
     }
     viewMenus[currentViewMenu]->displayMenu();
 }
@@ -141,5 +192,9 @@ void MenuManager::nextEditMenuItem(bool isCustomPasswordChange)
 
 void MenuManager::nextViewMenu()
 {
-    currentViewMenu = (currentViewMenu + 1) % viewMenus.size();
+    bool reachedEnd = viewMenus[currentViewMenu]->nextMenuItem();
+    if (reachedEnd)
+    {
+        currentViewMenu = (currentViewMenu + 1) % viewMenus.size();
+    }
 }

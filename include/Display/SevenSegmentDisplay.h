@@ -30,12 +30,15 @@ private:
     void sendData(byte address, byte data);
     void send(byte data);
     byte receive();
-    byte getButtons();
     std::map<int, bool> previousButtonStates;
 public:
     SevenSegmentDisplay(byte dataPin, byte clockPin, byte strobePin, byte intensity = 7);
     virtual bool isButtonPressed(int button) override;
     virtual void showMenuItems(std::vector<MenuItem*> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable) override;
+    byte getButtons();
+    void setLED(byte color, byte pos);
+    void setLEDs(word leds);
+    void setupDisplay(bool active, byte intensity = 7);
     ~SevenSegmentDisplay() override;
 };
 #endif

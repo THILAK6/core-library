@@ -27,7 +27,11 @@ private:
     std::function<void(MenuItem*)> reset;
 
 public:
+    MenuManager(std::vector<Menu *> &viewMenus, std::vector<Menu *> &editMenus, Display *display, int menuButton, int enterButton, int selectButton, int upButton, int resetButton, std::function<void()> save, Preferences &preferences);
     MenuManager(std::vector<Menu *> &viewMenus, std::vector<Menu *> &editMenus, Display *display, int menuButton, int enterButton, int selectButton, int upButton, int resetButton, std::function<void()> save, std::function<void(MenuItem*)> reset, Preferences &preferences);
     ~MenuManager();
     void manage();
+    const std::vector<Menu*>& getViewMenus() const { return viewMenus; }
+    const std::vector<Menu*>& getEditMenus() const { return editMenus; }
+    std::function<void()> getSaveCallback() const { return save; }
 };

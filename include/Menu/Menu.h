@@ -34,5 +34,6 @@ public:
     void setDisplayType(DisplayMode displayMode);
     bool nextMenuItem();
     MenuItem* getCurrentMenuItem();
-
+    const std::vector<MenuItem*>& getMenuItems() const { return menuItems; }
+    bool getIsEditable() const { return isEditable; }
 };

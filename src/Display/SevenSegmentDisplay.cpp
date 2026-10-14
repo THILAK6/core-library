@@ -61,9 +61,9 @@ const byte FONT_DEFAULT[] = {
     0b01010011, // (63)	?
     0b01011111, // (64)	@
     0b01110111, // (65)	A
-    0b01111111, // (66)	B
+    0b01111100, // (66)	B
     0b00111001, // (67)	C
-    0b00111111, // (68)	D
+    0b01011110, // (68)	D
     0b01111001, // (69)	E
     0b01110001, // (70)	F
     0b00111101, // (71)	G
@@ -73,15 +73,15 @@ const byte FONT_DEFAULT[] = {
     0b01101001, // (75)	K
     0b00111000, // (76)	L
     0b00010101, // (77)	M
-    0b00110111, // (78)	N
+    0b01010100, // (78)	N
     0b00111111, // (79)	O
     0b01110011, // (80)	P
     0b01100111, // (81)	Q
-    0b00110001, // (82)	R
+    0b01010000, // (82)	R
     0b01101101, // (83)	S
     0b01111000, // (84)	T
     0b00111110, // (85)	U
-    0b00101010, // (86)	V
+    0b00011100, // (86)	V
     0b00011101, // (87)	W
     0b01110110, // (88)	X
     0b01101110, // (89)	Y
@@ -96,7 +96,7 @@ const byte FONT_DEFAULT[] = {
     0b01111100, // (98)	b
     0b01011000, // (99)	c
     0b01011110, // (100)	d
-    0b01111011, // (101)	e
+    0b01111001, // (101)	e
     0b00110001, // (102)	f
     0b01101111, // (103)	g
     0b01110100, // (104)	h
@@ -113,7 +113,7 @@ const byte FONT_DEFAULT[] = {
     0b01101101, // (115)	s
     0b01111000, // (116)	t
     0b00011100, // (117)	u
-    0b00101010, // (118)	v
+    0b00011100, // (118)	v
     0b00011101, // (119)	w
     0b01110110, // (120)	x
     0b01101110, // (121)	y
@@ -134,7 +134,7 @@ SevenSegmentDisplay::SevenSegmentDisplay(byte dataPin, byte clockPin, byte strob
     digitalWrite(clockPin, HIGH);
 
     sendCommand(0x40);
-    sendCommand(0x80 | min(7, (int)intensity));
+    sendCommand(0x88 | min(7, (int)intensity));
 
     digitalWrite(strobePin, LOW);
 #ifdef ARDUINO_ARCH_ESP32
@@ -155,8 +155,9 @@ SevenSegmentDisplay::~SevenSegmentDisplay()
 
 bool SevenSegmentDisplay::isButtonPressed(int buttonValue)
 {
+  if (buttonValue <= 0) return false;
   int buttons = getButtons();
-  bool currentButtonState = (buttons == buttonValue);
+  bool currentButtonState = (buttons & buttonValue) == buttonValue;
   bool wasPressed = false;
 
   if (currentButtonState && !previousButtonStates[buttonValue])
@@ -183,12 +184,46 @@ byte SevenSegmentDisplay::getButtons(void)
   return keys;
 }
 
+void SevenSegmentDisplay::setLED(byte color, byte pos)
+{
+  sendData((pos << 1) + 1, color);
+}
+
+void SevenSegmentDisplay::setLEDs(word leds)
+{
+  for (int i = 0; i < 8; i++)
+  {
+    byte color = 0;
+
+    if ((leds & (1 << i)) != 0)
+    {
+      color |= 1; // Red
+    }
+
+    if ((leds & (1 << (i + 8))) != 0)
+    {
+      color |= 2; // Green
+    }
+
+    setLED(color, i);
+  }
+}
+
+void SevenSegmentDisplay::setupDisplay(bool active, byte intensity)
+{
+  this->intensity = intensity;
+  sendCommand(0x80 | (active ? 8 : 0) | min(7, (int)intensity));
+}
+
 void SevenSegmentDisplay::showMenuItems(std::vector<MenuItem*> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable)
 {
+    if (menuItems.empty()) return;
+    if (currentMenuItem < 0 || currentMenuItem >= (int8_t)menuItems.size()) currentMenuItem = 0;
+
     switch (displayMode)
     {
     case DisplayMode::VALUE_AND_SHORT_NAME:
-        showValueAndShortName(*menuItems[0], isEditable);
+        showValueAndShortName(*menuItems[currentMenuItem], isEditable);
         break;
     case DisplayMode::VALUE:
         if (menuItems.size() > 1)
@@ -197,11 +232,11 @@ void SevenSegmentDisplay::showMenuItems(std::vector<MenuItem*> &menuItems, int8_
         }
         else
         {
-            showValue(isEditable, *menuItems[0], *menuItems[0]);
+            showValue(isEditable, *menuItems[currentMenuItem], *menuItems[currentMenuItem]);
         }
         break;
     case DisplayMode::NAME:
-        showName(*menuItems[0]);
+        showName(*menuItems[currentMenuItem]);
         break;
     }
 }
@@ -220,8 +255,8 @@ void SevenSegmentDisplay::showValueAndShortName(MenuItem &menuItem, bool isEdita
         bool leadingZeros = isEditable && editingDigit != -1;
 
         setDisplayPart(valueData.value, 4, 5, valueData.decimalPos, isEditable ? editingDigit : -1, leadingZeros);
+        setDisplayToString(menuItem.getShortName(), false, 5);
     }
-    setDisplayToString(menuItem.getShortName(), false, 5);
 }
 
 void SevenSegmentDisplay::showValue(bool isEditable, MenuItem &menuItem, MenuItem &menuItemAdditional)
@@ -294,7 +329,7 @@ void SevenSegmentDisplay::setDisplayNumber(int32_t value, int8_t startingPos, in
   {
     int pos = startingPos - i;
     bool isBlinkingDigit = (pos == blinkDigitPos);
-    bool isDot = (i == decimalPos);
+    bool isDot = (decimalPos > 0 && i == decimalPos);
 
     if (isBlinkingDigit && !blinkState)
     {

@@ -47,14 +47,25 @@ private:
     MenuType type;
     void updateValueWithin();
     Data data;
+    std::function<float()> valueGetter = nullptr;
+    std::function<int8_t()> modeGetter = nullptr;
+    std::function<void()> onReset = nullptr;
 public:
     MenuItem(String mainName, String name, String shortName, float value, int8_t decimalPos);
+    MenuItem(String mainName, String name, String shortName, float value, std::function<void()> onReset, int8_t decimalPos = 0);
+    MenuItem(String mainName, String name, String shortName, std::function<float()> valueGetter, int8_t decimalPos = 0);
+    MenuItem(String mainName, String name, String shortName, std::function<float()> valueGetter, std::function<void()> onReset, int8_t decimalPos = 0);
     MenuItem(String mainName, String name, String shortName, std::vector<String> modes, std::vector<String> modesName, int8_t currentMode);
+    MenuItem(String mainName, String name, String shortName, std::vector<String> modes, std::vector<String> modesName, std::function<int8_t()> modeGetter);
+    MenuItem(String mainName, String name, String shortName, std::vector<String> modes, std::vector<String> modesName, std::function<int8_t()> modeGetter, std::function<void()> onReset);
    
     MenuItem(const MenuItem& other);
     MenuItem& operator=(const MenuItem& other);
  
     ~MenuItem();
+    void triggerReset();
+    void setOnReset(std::function<void()> onReset);
+    bool hasReset() const { return onReset != nullptr; }
 
     void updateValue(float valueToUpdate);
 

@@ -3,7 +3,8 @@
 #define MAX_DIGITS 5
 
 MenuItem::MenuItem(const MenuItem& other)
-    : name(other.name), shortName(other.shortName), mainName(other.mainName), type(other.type)
+    : name(other.name), shortName(other.shortName), mainName(other.mainName), type(other.type),
+      valueGetter(other.valueGetter), modeGetter(other.modeGetter), onReset(other.onReset)
 {
     if (other.type == MenuType::ValueType) {
         data.valueData.value = other.data.valueData.value;
@@ -32,6 +33,9 @@ MenuItem& MenuItem::operator=(const MenuItem& other)
     shortName = other.shortName;
     mainName = other.mainName;
     type = other.type;
+    valueGetter = other.valueGetter;
+    modeGetter = other.modeGetter;
+    onReset = other.onReset;
     
     if (other.type == MenuType::ValueType) {
         data.valueData.value = other.data.valueData.value;
@@ -56,6 +60,33 @@ MenuItem::MenuItem(String mainName, String name, String shortName, float value, 
     data.valueData.decimalPos = decimalPos;
 }
 
+MenuItem::MenuItem(String mainName, String name, String shortName, float value, std::function<void()> onReset, int8_t decimalPos)
+    : name(name), shortName(shortName), mainName(mainName), onReset(onReset)
+{
+    type = MenuType::ValueType;
+    data.valueData.value = value;
+    data.valueData.editingDigit = -1;
+    data.valueData.decimalPos = decimalPos;
+}
+
+MenuItem::MenuItem(String mainName, String name, String shortName, std::function<float()> valueGetter, int8_t decimalPos)
+    : name(name), shortName(shortName), mainName(mainName), valueGetter(valueGetter)
+{
+    type = MenuType::ValueType;
+    data.valueData.value = valueGetter ? valueGetter() : 0.0f;
+    data.valueData.editingDigit = -1;
+    data.valueData.decimalPos = decimalPos;
+}
+
+MenuItem::MenuItem(String mainName, String name, String shortName, std::function<float()> valueGetter, std::function<void()> onReset, int8_t decimalPos)
+    : name(name), shortName(shortName), mainName(mainName), valueGetter(valueGetter), onReset(onReset)
+{
+    type = MenuType::ValueType;
+    data.valueData.value = valueGetter ? valueGetter() : 0.0f;
+    data.valueData.editingDigit = -1;
+    data.valueData.decimalPos = decimalPos;
+}
+
 MenuItem::MenuItem(String mainName, String name, String shortName, std::vector<String> modes, std::vector<String> modesName, int8_t currentMode)
     : name(name), shortName(shortName), mainName(mainName)
 {
@@ -64,6 +95,39 @@ MenuItem::MenuItem(String mainName, String name, String shortName, std::vector<S
     new (&data.modeData.modesName) std::vector<String>(modesName);
     data.modeData.currentMode = currentMode;
     data.modeData.isEditing = false;
+}
+
+MenuItem::MenuItem(String mainName, String name, String shortName, std::vector<String> modes, std::vector<String> modesName, std::function<int8_t()> modeGetter)
+    : name(name), shortName(shortName), mainName(mainName), modeGetter(modeGetter)
+{
+    type = MenuType::ModeType;
+    new (&data.modeData.modes) std::vector<String>(modes);
+    new (&data.modeData.modesName) std::vector<String>(modesName);
+    data.modeData.currentMode = modeGetter ? modeGetter() : 0;
+    data.modeData.isEditing = false;
+}
+
+MenuItem::MenuItem(String mainName, String name, String shortName, std::vector<String> modes, std::vector<String> modesName, std::function<int8_t()> modeGetter, std::function<void()> onReset)
+    : name(name), shortName(shortName), mainName(mainName), modeGetter(modeGetter), onReset(onReset)
+{
+    type = MenuType::ModeType;
+    new (&data.modeData.modes) std::vector<String>(modes);
+    new (&data.modeData.modesName) std::vector<String>(modesName);
+    data.modeData.currentMode = modeGetter ? modeGetter() : 0;
+    data.modeData.isEditing = false;
+}
+
+void MenuItem::triggerReset()
+{
+    if (onReset)
+    {
+        onReset();
+    }
+}
+
+void MenuItem::setOnReset(std::function<void()> onReset)
+{
+    this->onReset = onReset;
 }
 
 MenuItem::~MenuItem()
@@ -118,21 +182,63 @@ void MenuItem::updateDecimalPos(int8_t decimalPos)
 
 uint8_t MenuItem::currentMode()
 {
-    return data.modeData.currentMode;
+    if (type != MenuType::ModeType)
+    {
+        return 0;
+    }
+    int8_t m = data.modeData.currentMode;
+    if (modeGetter && !data.modeData.isEditing)
+    {
+        m = modeGetter();
+    }
+    if (m < 0 || (!data.modeData.modes.empty() && m >= (int8_t)data.modeData.modes.size()))
+    {
+        return 0;
+    }
+    return (uint8_t)m;
 }
 
 String MenuItem::currentModeValue() const
 {
-    return data.modeData.modes[data.modeData.currentMode];
+    if (type != MenuType::ModeType || data.modeData.modes.empty())
+    {
+        return "";
+    }
+    int8_t m = data.modeData.currentMode;
+    if (modeGetter && !data.modeData.isEditing)
+    {
+        m = modeGetter();
+    }
+    if (m >= 0 && m < (int8_t)data.modeData.modes.size())
+    {
+        return data.modeData.modes[m];
+    }
+    return data.modeData.modes[0];
 }
 
 float MenuItem::value()
 {
-    return data.valueData.value;
+    if (type != MenuType::ValueType)
+    {
+        return 0.0f;
+    }
+    if (valueGetter && data.valueData.editingDigit == -1)
+    {
+        float v = valueGetter();
+        if (isnan(v) || isinf(v)) return 0.0f;
+        return v;
+    }
+    float v = data.valueData.value;
+    if (isnan(v) || isinf(v)) return 0.0f;
+    return v;
 }
 
 std::vector<String> MenuItem::modes()
 {
+    if (type != MenuType::ModeType)
+    {
+        return std::vector<String>();
+    }
     return data.modeData.modes;
 }
 
@@ -176,13 +282,13 @@ void MenuItem::editValueType(bool upAction, bool moveAction)
 
 void MenuItem::editModeType(bool upAction, bool moveAction)
 {
-    if (moveAction)
+    data.modeData.isEditing = true;
+    if (upAction || moveAction)
     {
-        data.modeData.isEditing = true;
-    }
-    if (upAction)
-    {
-        data.modeData.currentMode = (data.modeData.currentMode + 1) % data.modeData.modes.size();
+        if (!data.modeData.modes.empty())
+        {
+            data.modeData.currentMode = (data.modeData.currentMode + 1) % data.modeData.modes.size();
+        }
     }
 }
 
@@ -231,11 +337,21 @@ int8_t MenuItem::getEditingDigit()
 
 MenuItem::ValueData MenuItem::getValueData() const
 {
-    return data.valueData;
+    ValueData vd = data.valueData;
+    if (valueGetter && vd.editingDigit == -1)
+    {
+        vd.value = valueGetter();
+    }
+    return vd;
 }
 
 MenuItem::ModeData MenuItem::getModeData() const
 {
-    return data.modeData;
+    ModeData md = data.modeData;
+    if (modeGetter && !md.isEditing)
+    {
+        md.currentMode = modeGetter();
+    }
+    return md;
 }
 

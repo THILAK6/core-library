@@ -38,10 +38,10 @@ void Menu::setDisplayType(DisplayMode displayMode)
 
 bool Menu::nextMenuItem()
 {
-    if (isEditable)
+    if (isEditable || (displayMode == DisplayMode::VALUE_AND_SHORT_NAME && menuItems.size() > 1))
     {
         currentMenuItem++;
-        if (currentMenuItem >= menuItems.size())
+        if (currentMenuItem >= (int8_t)menuItems.size())
         {
             currentMenuItem = 0;
             return true;

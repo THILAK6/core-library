@@ -10,7 +10,9 @@
       "button",
       "tm1638",
       "lcd",
-      "seven-segment"
+      "seven-segment",
+      "wifi",
+      "ota"
     ],
  "authors": [
     {
