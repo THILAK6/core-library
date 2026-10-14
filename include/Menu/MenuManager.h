@@ -20,6 +20,8 @@ private:
     uint8_t currentViewMenu = 0;
     Preferences preferences;
     unsigned long lastEditMenuInteractionTime = 0;
+    bool waitingForExitButtonsRelease = false;
+    unsigned long exitCombinationCooldown = 0;
     void viewMenuControl(bool isUpButtonPressed, bool isResetButtonPressed);
     void editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPressed, bool isSelectButtonPressed, bool isUpButtonPressed, bool isResetButtonPressed, bool isExitCombination);
     void nextEditMenuItem(bool isCustomPasswordChange);

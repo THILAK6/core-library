@@ -59,6 +59,31 @@ MenuManager::~MenuManager() {
 
 void MenuManager::manage()
 {
+    if (waitingForExitButtonsRelease)
+    {
+        bool isMenuStillDown = display->isButtonDown(menuButton);
+        bool isSelectStillDown = display->isButtonDown(selectButton);
+
+        if (isMenuStillDown || isSelectStillDown)
+        {
+            exitCombinationCooldown = millis() + 400;
+            display->clearButtonStates();
+            viewMenus[currentViewMenu]->displayMenu();
+            return;
+        }
+        else if (millis() < exitCombinationCooldown)
+        {
+            display->clearButtonStates();
+            viewMenus[currentViewMenu]->displayMenu();
+            return;
+        }
+        else
+        {
+            waitingForExitButtonsRelease = false;
+            display->clearButtonStates();
+        }
+    }
+
     bool isMenuButtonPressed = display->isButtonPressed(menuButton);
     bool isUpButtonPressed = display->isButtonPressed(upButton);
     bool isSelectButtonPressed = display->isButtonPressed(selectButton);
@@ -165,6 +190,8 @@ void MenuManager::editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPr
 
         password->updateValue(0.0f);
         display->clearButtonStates();
+        waitingForExitButtonsRelease = true;
+        exitCombinationCooldown = millis() + 400;
         Serial.println("[MenuManager] Edit menu exited via MENU + DIGIT combination.");
         return;
     }
