@@ -125,7 +125,7 @@ void WiFiManager::saveCredentials(const String &newSsid, const String &newPass, 
 void WiFiManager::startSoftAP()
 {
     char softAP_ssid[48];
-    snprintf(softAP_ssid, sizeof(softAP_ssid), "TK_TECH_DIGITAL_COUNTER_%6X", deviceId);
+    snprintf(softAP_ssid, sizeof(softAP_ssid), "TK_TECH_DIGITAL_COUNTER_%u", deviceId);
 
     IPAddress apGateway(192, 168, 4, 1);
     IPAddress apSubnet(255, 255, 255, 0);
