@@ -73,7 +73,6 @@ void MenuManager::manage()
             isEditMenuActive = true;
             currentEditMenu = 0;
             password->updateValue(0.0f);
-            usedCustomPassword = false;
         }
     }
     if (isUpButtonPressed)
@@ -119,13 +118,6 @@ void MenuManager::editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPr
         currentEditMenu = 0;
 
         password->updateValue(0.0f);
-        if (usedCustomPassword)
-        {
-            customPassword->updateValue(0.0f);
-            preferences.putFloat("CustomPass", 0.0f);
-            usedCustomPassword = false;
-            Serial.println("[Auth] Custom password cleared after use.");
-        }
     }
     if (isMenuButtonPressed && !isEditing)
     {
@@ -149,7 +141,6 @@ void MenuManager::editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPr
                 }
                 else if (custom != 0.0f && entered == custom)
                 {
-                    usedCustomPassword = true;
                     Serial.println("[Auth] Logged in with custom password.");
                     nextEditMenuItem(false);
                 }
@@ -162,10 +153,6 @@ void MenuManager::editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPr
             else
             {
                 bool isCustomPassMenu = (editMenus[currentEditMenu] == customPasswordMenu);
-                if (isCustomPassMenu)
-                {
-                    usedCustomPassword = false;
-                }
                 nextEditMenuItem(isCustomPassMenu);
             }
 
@@ -241,13 +228,6 @@ void MenuManager::nextEditMenuItem(bool isCustomPasswordChange)
             {
                 isEditMenuActive = false;
                 password->updateValue(0.0f);
-                if (usedCustomPassword)
-                {
-                    customPassword->updateValue(0.0f);
-                    preferences.putFloat("CustomPass", 0.0f);
-                    usedCustomPassword = false;
-                    Serial.println("[Auth] Custom password cleared after use.");
-                }
             }
         }
     }
