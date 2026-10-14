@@ -143,7 +143,7 @@ void MenuItem::updateValueWithin()
 {
     int8_t editingDigit = data.valueData.editingDigit;
     float value = data.valueData.value;
-    float decimalPos = data.valueData.decimalPos;
+    float decimalPos = (decimalPosGetter != nullptr) ? (float)decimalPosGetter() : (float)data.valueData.decimalPos;
     if (editingDigit == -1)
     {
         return;
@@ -342,7 +342,7 @@ MenuItem::ValueData MenuItem::getValueData() const
     {
         vd.value = valueGetter();
     }
-    if (decimalPosGetter && vd.editingDigit == -1)
+    if (decimalPosGetter)
     {
         vd.decimalPos = decimalPosGetter();
     }
