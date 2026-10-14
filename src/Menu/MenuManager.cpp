@@ -68,7 +68,13 @@ void MenuManager::manage()
     if (isMenuButtonPressed)
     {
         Serial.println("[Button] MENU clicked");
-        isEditMenuActive = true;
+        if (!isEditMenuActive)
+        {
+            isEditMenuActive = true;
+            currentEditMenu = 0;
+            password->updateValue(0.0f);
+            usedCustomPassword = false;
+        }
     }
     if (isUpButtonPressed)
     {
@@ -111,6 +117,15 @@ void MenuManager::editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPr
         isEditing = false;
         isEditMenuActive = false;
         currentEditMenu = 0;
+
+        password->updateValue(0.0f);
+        if (usedCustomPassword)
+        {
+            customPassword->updateValue(0.0f);
+            preferences.putFloat("CustomPass", 0.0f);
+            usedCustomPassword = false;
+            Serial.println("[Auth] Custom password cleared after use.");
+        }
     }
     if (isMenuButtonPressed && !isEditing)
     {
@@ -122,10 +137,41 @@ void MenuManager::editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPr
         {
             editMenus[currentEditMenu]->stopEdit();
             isEditing = false;
-            nextEditMenuItem(editMenus[currentEditMenu] == customPasswordMenu);
+
+            if (currentEditMenu == 0 && accessDecider->currentMode() == 1)
+            {
+                float entered = password->value();
+                float custom = customPassword->value();
+                if (entered == DEFAULT_PASSWORD)
+                {
+                    Serial.println("[Auth] Logged in with default password.");
+                    nextEditMenuItem(false);
+                }
+                else if (custom != 0.0f && entered == custom)
+                {
+                    usedCustomPassword = true;
+                    Serial.println("[Auth] Logged in with custom password.");
+                    nextEditMenuItem(false);
+                }
+                else
+                {
+                    Serial.println("[Auth] Invalid password entered!");
+                    password->updateValue(0.0f);
+                }
+            }
+            else
+            {
+                bool isCustomPassMenu = (editMenus[currentEditMenu] == customPasswordMenu);
+                if (isCustomPassMenu)
+                {
+                    usedCustomPassword = false;
+                }
+                nextEditMenuItem(isCustomPassMenu);
+            }
+
             preferences.putFloat("CustomPass", customPassword->value());
             preferences.putInt("accessMode", accessDecider->currentMode());
-            save();
+            if (save) save();
         }
         else
         {
@@ -178,14 +224,31 @@ void MenuManager::nextEditMenuItem(bool isCustomPasswordChange)
         if(reachedEnd)
         {
             currentEditMenu = (currentEditMenu + 1) % editMenus.size();
+            if (currentEditMenu == 0)
+            {
+                isEditMenuActive = false;
+                password->updateValue(0.0f);
+            }
         }
     }
-    if (isCustomPasswordChange || (accessDecider->currentMode() == 1 && ((password->value() == DEFAULT_PASSWORD) || (password->value() == customPassword->value()))))
+    else if (isCustomPasswordChange || (accessDecider->currentMode() == 1 && ((password->value() == DEFAULT_PASSWORD) || (customPassword->value() != 0.0f && password->value() == customPassword->value()))))
     {
         bool reachedEnd = editMenus[currentEditMenu]->nextMenuItem();
         if(reachedEnd)
         {
             currentEditMenu = (currentEditMenu + 1) % editMenus.size();
+            if (currentEditMenu == 0)
+            {
+                isEditMenuActive = false;
+                password->updateValue(0.0f);
+                if (usedCustomPassword)
+                {
+                    customPassword->updateValue(0.0f);
+                    preferences.putFloat("CustomPass", 0.0f);
+                    usedCustomPassword = false;
+                    Serial.println("[Auth] Custom password cleared after use.");
+                }
+            }
         }
     }
 }

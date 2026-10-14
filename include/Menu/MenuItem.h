@@ -49,8 +49,10 @@ private:
     Data data;
     std::function<float()> valueGetter = nullptr;
     std::function<int8_t()> modeGetter = nullptr;
+    std::function<int8_t()> decimalPosGetter = nullptr;
     std::function<void()> onReset = nullptr;
 public:
+    void setDecimalPosGetter(std::function<int8_t()> getter) { this->decimalPosGetter = getter; }
     MenuItem(String mainName, String name, String shortName, float value, int8_t decimalPos);
     MenuItem(String mainName, String name, String shortName, float value, std::function<void()> onReset, int8_t decimalPos = 0);
     MenuItem(String mainName, String name, String shortName, std::function<float()> valueGetter, int8_t decimalPos = 0);

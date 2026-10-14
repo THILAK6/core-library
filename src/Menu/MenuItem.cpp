@@ -342,6 +342,10 @@ MenuItem::ValueData MenuItem::getValueData() const
     {
         vd.value = valueGetter();
     }
+    if (decimalPosGetter && vd.editingDigit == -1)
+    {
+        vd.decimalPos = decimalPosGetter();
+    }
     return vd;
 }
 

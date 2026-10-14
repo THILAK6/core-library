@@ -16,6 +16,7 @@ private:
     int resetButton;
     bool isEditMenuActive = false;
     bool isEditing = false;
+    bool usedCustomPassword = false;
     uint8_t currentEditMenu = 0;
     uint8_t currentViewMenu = 0;
     Preferences preferences;
