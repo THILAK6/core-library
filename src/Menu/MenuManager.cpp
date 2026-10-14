@@ -116,7 +116,7 @@ void MenuManager::manage()
         if (!isEditMenuActive)
         {
             isEditMenuActive = true;
-            currentEditMenu = 0;
+            currentEditMenu = (accessDecider->currentMode() == 0 && editMenus.size() > 1) ? 1 : 0;
             password->updateValue(0.0f);
             lastEditMenuInteractionTime = millis();
         }
@@ -265,11 +265,11 @@ void MenuManager::nextEditMenuItem(bool isCustomPasswordChange)
         bool reachedEnd = editMenus[currentEditMenu]->nextMenuItem();
         if(reachedEnd)
         {
-            currentEditMenu = (currentEditMenu + 1) % editMenus.size();
-            if (currentEditMenu == 0)
+            currentEditMenu = currentEditMenu + 1;
+            if (currentEditMenu >= editMenus.size())
             {
-                isEditMenuActive = false;
-                password->updateValue(0.0f);
+                // In Full Access mode, loop continuously through settings (skipping password menu)
+                currentEditMenu = (editMenus.size() > 1) ? 1 : 0;
             }
         }
     }
@@ -278,9 +278,11 @@ void MenuManager::nextEditMenuItem(bool isCustomPasswordChange)
         bool reachedEnd = editMenus[currentEditMenu]->nextMenuItem();
         if(reachedEnd)
         {
-            currentEditMenu = (currentEditMenu + 1) % editMenus.size();
-            if (currentEditMenu == 0)
+            currentEditMenu = currentEditMenu + 1;
+            if (currentEditMenu >= editMenus.size())
             {
+                // In Password Access mode, do not loop: exit edit menu and relock
+                currentEditMenu = 0;
                 isEditMenuActive = false;
                 password->updateValue(0.0f);
             }
