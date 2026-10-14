@@ -258,6 +258,11 @@ void SevenSegmentDisplay::showValueAndShortName(MenuItem &menuItem, bool isEdita
     {
         MenuItem::ModeData modeData = menuItem.getModeData();
         setDisplayToString(modeData.modes[modeData.currentMode], modeData.isEditing, 0);
+        int len = modeData.modes[modeData.currentMode].length();
+        for (int i = len; i < displays; i++)
+        {
+            clearDisplayDigit(i, 0);
+        }
     }
     else
     {

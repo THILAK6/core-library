@@ -29,7 +29,7 @@ MenuManager::MenuManager(std::vector<Menu *> &viewMenus, std::vector<Menu *> &ed
         customPasswordValue = 0.0f;
     }
 
-    std::vector<String> accessModes = {"FuLL ", "pASS "};
+    std::vector<String> accessModes = {"FuLL    ", "pASS    "};
     std::vector<String> accessModesName = {"Full Access", "Password Access"};
     accessDecider = new MenuItem("Access Mode", "ACCES", "ACC", accessModes, accessModesName, currentAccessMode);
     customPassword = new MenuItem("Custom Password", "cpass", "cps", customPasswordValue, 0);
