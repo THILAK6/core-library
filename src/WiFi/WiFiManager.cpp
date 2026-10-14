@@ -26,7 +26,14 @@ WiFiManager::~WiFiManager()
 
 void WiFiManager::setDeviceId(uint32_t id)
 {
-    this->deviceId = id;
+    if (this->deviceId != id)
+    {
+        this->deviceId = id;
+        if (wifiEnabled)
+        {
+            startSoftAP();
+        }
+    }
 }
 
 void WiFiManager::bindMenuManager(MenuManager *manager)
@@ -118,14 +125,7 @@ void WiFiManager::saveCredentials(const String &newSsid, const String &newPass, 
 void WiFiManager::startSoftAP()
 {
     char softAP_ssid[48];
-    if (deviceId > 0)
-    {
-        snprintf(softAP_ssid, sizeof(softAP_ssid), "TK_TECH_DIGITAL_COUNTER_%06X", deviceId);
-    }
-    else
-    {
-        snprintf(softAP_ssid, sizeof(softAP_ssid), "TK_TECH_DEVICE_%06X", (uint32_t)(ESP.getEfuseMac() & 0xFFFFFF));
-    }
+    snprintf(softAP_ssid, sizeof(softAP_ssid), "TK_TECH_DIGITAL_COUNTER_%6X", deviceId);
 
     IPAddress apGateway(192, 168, 4, 1);
     IPAddress apSubnet(255, 255, 255, 0);
