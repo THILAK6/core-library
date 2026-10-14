@@ -144,6 +144,7 @@ void MenuManager::manage()
             currentEditMenu = (accessDecider->currentMode() == 0 && editMenus.size() > 1) ? 1 : 0;
             password->updateValue(0.0f);
             lastEditMenuInteractionTime = millis();
+            isMenuButtonPressed = false;
         }
     }
     if (isUpButtonPressed)
