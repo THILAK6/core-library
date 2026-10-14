@@ -19,8 +19,9 @@ private:
     uint8_t currentEditMenu = 0;
     uint8_t currentViewMenu = 0;
     Preferences preferences;
+    unsigned long lastEditMenuInteractionTime = 0;
     void viewMenuControl(bool isUpButtonPressed, bool isResetButtonPressed);
-    void editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPressed, bool isSelectButtonPressed, bool isUpButtonPressed, bool isResetButtonPressed);
+    void editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPressed, bool isSelectButtonPressed, bool isUpButtonPressed, bool isResetButtonPressed, bool isExitCombination);
     void nextEditMenuItem(bool isCustomPasswordChange);
     void nextViewMenu();
     std::function<void()> save;

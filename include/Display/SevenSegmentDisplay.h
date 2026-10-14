@@ -34,6 +34,8 @@ private:
 public:
     SevenSegmentDisplay(byte dataPin, byte clockPin, byte strobePin, byte intensity = 7);
     virtual bool isButtonPressed(int button) override;
+    virtual bool isButtonDown(int button) override;
+    virtual void clearButtonStates() override;
     virtual void showMenuItems(std::vector<MenuItem*> &menuItems, int8_t currentMenuItem, DisplayMode displayMode, bool isEditable) override;
     byte getButtons();
     void setLED(byte color, byte pos);

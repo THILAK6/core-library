@@ -65,6 +65,51 @@ void MenuManager::manage()
     bool isEnterButtonPressed = display->isButtonPressed(enterButton);
     bool isResetButtonPressed = display->isButtonPressed(resetButton);
 
+    bool isExitCombination = false;
+    if (isEditMenuActive)
+    {
+        bool isMenuDown = display->isButtonDown(menuButton);
+        bool isSelectDown = display->isButtonDown(selectButton);
+        isExitCombination = (isMenuDown && isSelectDown) ||
+                            (isMenuDown && isSelectButtonPressed) ||
+                            (isSelectDown && isMenuButtonPressed) ||
+                            (isMenuButtonPressed && isSelectButtonPressed);
+
+        if (isExitCombination)
+        {
+            isMenuButtonPressed = false;
+            isSelectButtonPressed = false;
+            display->clearButtonStates();
+        }
+
+        // Keep inactivity timer alive if any button was pressed or is held down
+        if (isMenuButtonPressed || isEnterButtonPressed || isSelectButtonPressed ||
+            isUpButtonPressed || isResetButtonPressed || isExitCombination ||
+            isMenuDown || isSelectDown ||
+            display->isButtonDown(enterButton) || display->isButtonDown(upButton) || display->isButtonDown(resetButton))
+        {
+            lastEditMenuInteractionTime = millis();
+        }
+
+        // 10-second inactivity timeout: exit edit menu automatically
+        if (millis() - lastEditMenuInteractionTime >= 10000)
+        {
+            Serial.println("[MenuManager] Edit menu 10s inactivity timeout. Returning to main screen.");
+            if (isEditing)
+            {
+                preferences.putFloat("CustomPass", customPassword->value());
+                preferences.putInt("accessMode", accessDecider->currentMode());
+                if (save) save();
+                editMenus[currentEditMenu]->stopEdit();
+                isEditing = false;
+            }
+            isEditMenuActive = false;
+            currentEditMenu = 0;
+            password->updateValue(0.0f);
+            display->clearButtonStates();
+        }
+    }
+
     if (isMenuButtonPressed)
     {
         Serial.println("[Button] MENU clicked");
@@ -73,6 +118,7 @@ void MenuManager::manage()
             isEditMenuActive = true;
             currentEditMenu = 0;
             password->updateValue(0.0f);
+            lastEditMenuInteractionTime = millis();
         }
     }
     if (isUpButtonPressed)
@@ -94,7 +140,7 @@ void MenuManager::manage()
 
     if (isEditMenuActive)
     {
-        editMenuControl(isMenuButtonPressed, isEnterButtonPressed, isSelectButtonPressed, isUpButtonPressed, isResetButtonPressed);
+        editMenuControl(isMenuButtonPressed, isEnterButtonPressed, isSelectButtonPressed, isUpButtonPressed, isResetButtonPressed, isExitCombination);
     }
     else
     {
@@ -102,9 +148,9 @@ void MenuManager::manage()
     }
 }
 
-void MenuManager::editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPressed, bool isSelectButtonPressed, bool isUpButtonPressed, bool isResetButtonPressed)
+void MenuManager::editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPressed, bool isSelectButtonPressed, bool isUpButtonPressed, bool isResetButtonPressed, bool isExitCombination)
 {
-    if (isResetButtonPressed)
+    if (isExitCombination)
     {
         if (isEditing)
         {
@@ -118,6 +164,15 @@ void MenuManager::editMenuControl(bool isMenuButtonPressed, bool isEnterButtonPr
         currentEditMenu = 0;
 
         password->updateValue(0.0f);
+        display->clearButtonStates();
+        Serial.println("[MenuManager] Edit menu exited via MENU + DIGIT combination.");
+        return;
+    }
+
+    // Reset button is deliberately ignored in edit menu to prevent accidental roll count clearing
+    if (isResetButtonPressed)
+    {
+        Serial.println("[MenuManager] Reset pressed in edit menu (ignored for safety).");
     }
     if (isMenuButtonPressed && !isEditing)
     {

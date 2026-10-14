@@ -169,6 +169,17 @@ bool SevenSegmentDisplay::isButtonPressed(int buttonValue)
   return wasPressed;
 }
 
+bool SevenSegmentDisplay::isButtonDown(int buttonValue)
+{
+  if (buttonValue <= 0) return false;
+  return (getButtons() & buttonValue) == buttonValue;
+}
+
+void SevenSegmentDisplay::clearButtonStates()
+{
+  previousButtonStates.clear();
+}
+
 byte SevenSegmentDisplay::getButtons(void)
 {
   byte keys = 0;
